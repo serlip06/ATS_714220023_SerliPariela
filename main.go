@@ -4,14 +4,10 @@ import (
 	"log"
 
 	"github.com/serlip06/ATS_714220023_SerliPariela/config"
-	
-
-	"github.com/serlip06/pointsalesofkantin"
+	//"github.com/serlip06/pointsalesofkantin/module"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-
-
-	"github.com/serlip06/pointsalesofkantin/url"
-
+	"github.com/serlip06/ATS_714220023_SerliPariela/url"
+	"github.com/aiteung/musik"
 	"github.com/gofiber/fiber/v2"
 )
 

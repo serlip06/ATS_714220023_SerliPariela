@@ -1,12 +1,13 @@
-module github.com/serlip06/ws-ATS-Serli
+module github.com/serlip06/ATS_714220023_SerliPariela
 
 go 1.22.1
 
 require (
 	github.com/aiteung/atdb v0.1.7
+	github.com/aiteung/musik v0.0.5
 	github.com/gofiber/fiber/v2 v2.52.4
-	github.com/serlip06/pointsalesofkantin v0.0.1
-	go.mau.fi/whatsmeow v0.0.0-20240327124018-350073db195c
+	github.com/serlip06/pointsalesofkantin v0.0.3
+	go.mau.fi/whatsmeow v0.0.0-20240507080416-01b0547014dc
 )
 
 require (
@@ -24,7 +25,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/microsoft/go-mssqldb v1.0.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
-	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rs/zerolog v1.32.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
