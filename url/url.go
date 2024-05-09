@@ -17,6 +17,6 @@ func Web(page *fiber.App) {
 	page.Options("/", controller.Sink)
 
 	page.Get("/checkip", controller.Homepage)
-	page.Get("/", controller.GetPelanggan)	
+	page.Get("/pelanggan", controller.GetPelanggan)	
 
 }
