@@ -24,7 +24,7 @@ func GetPelanggan(c *fiber.Ctx) error {
 }
 
 // memanggil id 
-func TestGetPelangganByID(c *fiber.Ctx) {
+func GetPelangganByID(c *fiber.Ctx) {
 	pelangganID, err := primitive.ObjectIDFromHex("615af14ae62f4c488e1d6d14")
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
