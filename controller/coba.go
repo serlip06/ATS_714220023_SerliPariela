@@ -6,6 +6,7 @@ import (
 	"github.com/aiteung/musik"
 	"github.com/gofiber/fiber/v2"
 	"github.com/serlip06/ATS_714220023_SerliPariela/config"
+	inimodel "github.com/serlip06/pointsalesofkantin/model"
 	cek "github.com/serlip06/pointsalesofkantin/module"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -68,6 +69,43 @@ func GetCustomerID(c *fiber.Ctx) error {
 	}
 	return c.JSON(ps)
 }
+
+//insert data customer 
+func InsertDataCustomer(c *fiber.Ctx) error {
+	//db := config.Ulbimongoconn
+	var customer inimodel.Customer
+	if err := c.BodyParser(&customer); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+	}
+	insertedID := cek.InsertCustomer(
+		customer.Nama,
+		customer.Phone_number,
+		customer.Alamat,
+		customer.Email,
+		customer.Nama_Produk,
+		customer.Deskripsi,
+		customer.Harga,
+		customer.Gambar,
+		customer.Stok,
+	)
+
+	if insertedID == "" { // Assuming an empty string means an error occurred
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Error inserting customer data",
+		})
+	}
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":      http.StatusOK,
+		"message":     "Data berhasil disimpan.",
+		"inserted_id": insertedID,
+	})
+}
+
+
 
 // func GetPelangganByID(c *fiber.Ctx) error {
 // 	id := c.Params("id")

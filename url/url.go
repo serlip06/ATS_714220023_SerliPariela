@@ -18,7 +18,8 @@ func Web(page *fiber.App) {
 
 	page.Get("/checkip", controller.Homepage)
 	page.Get("/pelanggan", controller.GetPelanggan)	
-	page.Get("/customer", controller.GetCustomer)//memanggil data customer 	
+	page.Get("/customer", controller.GetCustomer)//memanggil data customer 
+	page.Post("/insert", controller.InsertDataCustomer)//post data customer (insert data)	
 	
 
 }
