@@ -18,6 +18,7 @@ func Web(page *fiber.App) {
 
 	page.Get("/checkip", controller.Homepage)
 	page.Get("/pelanggan", controller.GetPelanggan)	
+	page.Get("/customer", controller.GetCustomer)//memanggil data customer 	
 	
 
 }
