@@ -173,7 +173,7 @@ func DeleteCustomerByID(c *fiber.Ctx) error {
 		})
 	}
 
-	err = cek.DeleteCustomerByID(objID, config.Ulbimongoconn, "presensi")
+	err = cek.DeleteCustomerByID(objID, config.Ulbimongoconn, "customer")
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  http.StatusInternalServerError,
