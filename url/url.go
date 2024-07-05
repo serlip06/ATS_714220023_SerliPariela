@@ -20,6 +20,6 @@ func Web(page *fiber.App) {
 	page.Get("/pelanggan", controller.GetPelanggan)	
 	page.Get("/customer", controller.GetCustomer)//memanggil data customer 
 	page.Post("/insert", controller.InsertDataCustomer)//post data customer (insert data)	
-	
-
+	page.Put("/update/:id", controller.UpdateData)//update data 
+	page.Delete("/delete/:id", controller.DeleteCustomerByID)
 }
