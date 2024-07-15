@@ -50,6 +50,33 @@ paths:
       summary: Get All Data Customer.
       tags:
       - Customer
+  /customer/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Ambil per ID data customer.
+      parameters:
+      - description: Masukan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Customer'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get By ID Data Customer.
+      tags:
+      - Customer
 schemes:
 - https
 - http

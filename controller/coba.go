@@ -47,6 +47,18 @@ func GetCustomer(c *fiber.Ctx) error{
 // }
 
 //memanggil id customer 
+// GetCustomerID godoc
+// @Summary Get By ID Data Customer.
+// @Description Ambil per ID data customer.
+// @Tags Customer
+// @Accept json
+// @Produce json
+// @Param id path string true "Masukan ID"
+// @Success 200 {object} Customer
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /customer/{id} [get]
 func GetCustomerID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
