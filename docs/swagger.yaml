@@ -1,4 +1,30 @@
 basePath: /
+definitions:
+  controller.Customer:
+    properties:
+      _id:
+        type: string
+      alamat:
+        type: string
+      deskripsi:
+        type: string
+      email:
+        items:
+          type: string
+        type: array
+      gambar:
+        type: string
+      harga:
+        type: integer
+      nama:
+        type: string
+      nama_produk:
+        type: string
+      phone_number:
+        type: string
+      stok:
+        type: string
+    type: object
 host: ats-714220023-serlipariela-38bba14820aa.herokuapp.com
 info:
   contact:
@@ -8,7 +34,22 @@ info:
   description: This is a sample swagger for Fiber
   title: TES SWAGGER ULBI
   version: "1.0"
-paths: {}
+paths:
+  /customer:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil semua data customer.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Customer'
+      summary: Get All Data Customer.
+      tags:
+      - Customer
 schemes:
 - https
 - http

@@ -18,7 +18,71 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/customer": {
+            "get": {
+                "description": "Mengambil semua data customer.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customer"
+                ],
+                "summary": "Get All Data Customer.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Customer"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controller.Customer": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "alamat": {
+                    "type": "string"
+                },
+                "deskripsi": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "gambar": {
+                    "type": "string"
+                },
+                "harga": {
+                    "type": "integer"
+                },
+                "nama": {
+                    "type": "string"
+                },
+                "nama_produk": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "stok": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
