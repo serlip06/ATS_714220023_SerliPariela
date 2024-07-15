@@ -91,6 +91,17 @@ func GetCustomerID(c *fiber.Ctx) error {
 }
 
 //insert data customer 
+// InsertDataCustomer godoc
+// @Summary Insert data customer.
+// @Description Input data customer.
+// @Tags Customer
+// @Accept json
+// @Produce json
+// @Param request body Customer true "Payload Body [RAW]"
+// @Success 200 {object} Customer
+// @Failure 400
+// @Failure 500
+// @Router /insert [post]
 func InsertDataCustomer(c *fiber.Ctx) error {
 	//db := config.Ulbimongoconn
 	var customer inimodel.Customer
