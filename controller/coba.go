@@ -97,7 +97,7 @@ func GetCustomerID(c *fiber.Ctx) error {
 // @Tags Customer
 // @Accept json
 // @Produce json
-// @Param request body Customer true "Payload Body [RAW]"
+// @Param request body ReqCustomer true "Payload Body [RAW]"
 // @Success 200 {object} Customer
 // @Failure 400
 // @Failure 500

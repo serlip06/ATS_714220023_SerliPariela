@@ -103,7 +103,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.Customer"
+                            "$ref": "#/definitions/controller.ReqCustomer"
                         }
                     }
                 ],
@@ -161,6 +161,53 @@ const docTemplate = `{
                 "nama": {
                     "type": "string",
                     "example": "xavieraa putri"
+                },
+                "nama_produk": {
+                    "type": "string",
+                    "example": "Nasi Goreng"
+                },
+                "phone_number": {
+                    "type": "string",
+                    "example": "085798654096"
+                },
+                "stok": {
+                    "type": "string",
+                    "example": "10"
+                }
+            }
+        },
+        "controller.ReqCustomer": {
+            "type": "object",
+            "properties": {
+                "alamat": {
+                    "type": "string",
+                    "example": "jl.sarijadi"
+                },
+                "deskripsi": {
+                    "type": "string",
+                    "example": "nasi goreng dengan telor dan daging"
+                },
+                "email": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "Xaviera_89@gmail.com",
+                        "Putri_90@gmail.com"
+                    ]
+                },
+                "gambar": {
+                    "type": "string",
+                    "example": "https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg"
+                },
+                "harga": {
+                    "type": "integer",
+                    "example": 15000
+                },
+                "nama": {
+                    "type": "string",
+                    "example": "Tes swager"
                 },
                 "nama_produk": {
                     "type": "string",
