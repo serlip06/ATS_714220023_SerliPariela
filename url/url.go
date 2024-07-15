@@ -4,6 +4,7 @@ import (
 	"github.com/serlip06/ATS_714220023_SerliPariela/controller"
 	
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger" // swagger handler
 )
 
 func Web(page *fiber.App) {
@@ -23,4 +24,7 @@ func Web(page *fiber.App) {
 	page.Post("/insert", controller.InsertDataCustomer)//post data customer (insert data)	
 	page.Put("/update/:id", controller.UpdateData)//update data 
 	page.Delete("/delete/:id", controller.DeleteCustomerByID)
+
+	//swager
+	page.Get("/docs/*", swagger.HandlerDefault)
 }
