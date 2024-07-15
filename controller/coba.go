@@ -137,6 +137,18 @@ func InsertDataCustomer(c *fiber.Ctx) error {
 }
 
 // update data 
+// UpdateData godoc
+// @Summary Update data customer.
+// @Description Ubah data customer.
+// @Tags Customer
+// @Accept json
+// @Produce json
+// @Param id path string true "Masukan ID"
+// @Param request body ReqCustomer true "Payload Body [RAW]"
+// @Success 200 {object} Customer
+// @Failure 400
+// @Failure 500
+// @Router /update/{id} [put]
 func UpdateData(c *fiber.Ctx) error {
 	db := config.Ulbimongoconn
 

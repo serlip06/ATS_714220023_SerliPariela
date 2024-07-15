@@ -149,6 +149,37 @@ paths:
       summary: Insert data customer.
       tags:
       - Customer
+  /update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Ubah data customer.
+      parameters:
+      - description: Masukan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ReqCustomer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Customer'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Update data customer.
+      tags:
+      - Customer
 schemes:
 - https
 - http
