@@ -3,26 +3,38 @@ definitions:
   controller.Customer:
     properties:
       _id:
+        example: "1234567"
         type: string
       alamat:
+        example: jl.sarijadi
         type: string
       deskripsi:
+        example: nasi goreng dengan telor dan daging
         type: string
       email:
+        example:
+        - Xaviera_89@gmail.com
+        - Putri_90@gmail.com
         items:
           type: string
         type: array
       gambar:
+        example: https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg
         type: string
       harga:
+        example: 15000
         type: integer
       nama:
+        example: xavieraa putri
         type: string
       nama_produk:
+        example: Nasi Goreng
         type: string
       phone_number:
+        example: "085798654096"
         type: string
       stok:
+        example: "10"
         type: string
     type: object
 host: ats-714220023-serlipariela-38bba14820aa.herokuapp.com

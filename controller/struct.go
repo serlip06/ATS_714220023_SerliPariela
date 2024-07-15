@@ -27,14 +27,14 @@ type Transaksi struct {
 }
 
 type Customer struct {
-	ID           primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
-	Nama         string             `bson:"nama,omitempty" json:"nama,omitempty"`
-	Phone_number string             `bson:"phone_number,omitempty" json:"phone_number,omitempty"`
-	Alamat       string             `bson:"alamat,omitempty" json:"alamat,omitempty"`
-	Email        []string           `bson:"email,omitempty" json:"email"`
-	Nama_Produk  string             `bson:"nama_produk,omitempty" json:"nama_produk,omitempty"`
-	Deskripsi    string             `bson:"deskripsi,omitempty" json:"deskripsi,omitempty"`
-	Harga        int                `bson:"harga,omitempty" json:"harga,omitempty"`
-	Gambar       string             `bson:"gambar,omitempty" json:"gambar,omitempty"`
-	Stok         string             `bson:"stok,omitempty" json:"stok,omitempty"`
+	ID           primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty" example:"1234567"`
+	Nama         string             `bson:"nama,omitempty" json:"nama,omitempty" example:"xavieraa putri"`
+	Phone_number string             `bson:"phone_number,omitempty" json:"phone_number,omitempty" example:"085798654096"`
+	Alamat       string             `bson:"alamat,omitempty" json:"alamat,omitempty" example:"jl.sarijadi"`
+	Email        []string           `bson:"email,omitempty" json:"email" example:"Xaviera_89@gmail.com,Putri_90@gmail.com"`
+	Nama_Produk  string             `bson:"nama_produk,omitempty" json:"nama_produk,omitempty" example:"Nasi Goreng"`
+	Deskripsi    string             `bson:"deskripsi,omitempty" json:"deskripsi,omitempty" example:"nasi goreng dengan telor dan daging"`
+	Harga        int                `bson:"harga,omitempty" json:"harga,omitempty" example:"15000"`
+	Gambar       string             `bson:"gambar,omitempty" json:"gambar,omitempty" example:"https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg"`
+	Stok         string             `bson:"stok,omitempty" json:"stok,omitempty" example:"10"`
 }
