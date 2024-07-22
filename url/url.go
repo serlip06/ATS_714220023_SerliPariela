@@ -27,7 +27,7 @@ func Web(page *fiber.App) {
 
 	//endpoint bagian produk 
 	page.Get("/produk", controller.GetProduks)//memanggil data produk
-	
+	page.Get("/produk/:id", controller.GetProduksID)//memangil data berdasarkan id 
 	//swager
 	page.Get("/docs/*", swagger.HandlerDefault)
 }
