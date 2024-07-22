@@ -25,6 +25,9 @@ func Web(page *fiber.App) {
 	page.Put("/update/:id", controller.UpdateData)//update data 
 	page.Delete("/delete/:id", controller.DeleteCustomerByID)
 
+	//endpoint bagian produk 
+	page.Get("/produk", controller.GetProduks)//memanggil data produk
+	
 	//swager
 	page.Get("/docs/*", swagger.HandlerDefault)
 }

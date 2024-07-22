@@ -23,6 +23,11 @@ func GetPelanggan(c *fiber.Ctx) error {
 	return c.JSON(ps)
 }
 
+func GetProduks(c *fiber.Ctx) error {
+	ps := cek.GetAllProduks()
+	return c.JSON(ps)
+}
+
 // GetPresensi godoc
 // @Summary Get All Data Customer.
 // @Description Mengambil semua data customer.
