@@ -277,10 +277,37 @@ func GetProduksID(c *fiber.Ctx) error {
 	}
 	return c.JSON(ps)
 }
+//insert data produk
+func InsertDataProduk(c *fiber.Ctx) error {
+	// db := config.Ulbimongoconn
+	var produk inimodel.Produk
+	if err := c.BodyParser(&produk); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+	}
 
+	insertedID := cek.InsertDataProduk(
+		produk.Nama_Produk,
+		produk.Deskripsi,
+		produk.Harga,
+		produk.Gambar,
+		produk.Stok,
+	)
 
-
-
+	if insertedID == "" { // Assuming an empty string means an error occurred
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Error inserting product data",
+		})
+	}
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":      http.StatusOK,
+		"message":     "Data berhasil disimpan.",
+		"inserted_id": insertedID,
+	})
+}
 // func GetPelangganByID(c *fiber.Ctx) error {
 // 	id := c.Params("id")
 // 	if id == "" {
