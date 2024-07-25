@@ -308,6 +308,84 @@ func InsertDataProduk(c *fiber.Ctx) error {
 		"inserted_id": insertedID,
 	})
 }
+//update data produk 
+func UpdateDataProduk(c *fiber.Ctx) error {
+	db := config.Ulbimongoconn
+
+	// Get the ID from the URL parameter
+	id := c.Params("id")
+
+	// Parse the ID into an ObjectID
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+	}
+
+	// Parse the request body into a Presensi object
+	var produk inimodel.Produk
+	if err := c.BodyParser(&produk); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+	}
+
+	// Call the Updatecustomer function with the parsed ID and the Presensi object
+	err = cek.UpdateProduks(db, "produk",
+		objectID,
+		produk.Nama_Produk,
+		produk.Deskripsi,
+		produk.Harga,
+		produk.Gambar,
+		produk.Stok)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":  http.StatusOK,
+		"message": "Data successfully updated",
+	})
+}
+
+//delete data produk
+func DeleteProduksByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Wrong parameter",
+		})
+	}
+
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Invalid id parameter",
+		})
+	}
+
+	err = cek.DeleteProduksByID(objID, config.Ulbimongoconn, "produk")
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": fmt.Sprintf("Error deleting data for id %s", id),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":  http.StatusOK,
+		"message": fmt.Sprintf("Data with id %s deleted successfully", id),
+	})
+}
+
 // func GetPelangganByID(c *fiber.Ctx) error {
 // 	id := c.Params("id")
 // 	if id == "" {

@@ -29,7 +29,8 @@ func Web(page *fiber.App) {
 	page.Get("/produk", controller.GetProduks)//memanggil data produk
 	page.Get("/produk/:id", controller.GetProduksID)//memangil data berdasarkan id 
 	page.Post("/insert", controller.InsertDataProduk)//insert data produk
-	
+	page.Put("/update/:id", controller.UpdateDataProduk)//update data produk
+	page.Delete("/delete/:id", controller.DeleteProduksByID)
 	//swager
 	page.Get("/docs/*", swagger.HandlerDefault)
 }
