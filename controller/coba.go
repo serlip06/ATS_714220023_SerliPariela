@@ -121,11 +121,6 @@ func InsertDataCustomer(c *fiber.Ctx) error {
 		customer.Phone_number,
 		customer.Alamat,
 		customer.Email,
-		customer.Nama_Produk,
-		customer.Deskripsi,
-		customer.Harga,
-		customer.Gambar,
-		customer.Stok,
 	)
 
 	if insertedID == "" { // Assuming an empty string means an error occurred
@@ -185,11 +180,7 @@ func UpdateData(c *fiber.Ctx) error {
 		customer.Phone_number,
 		customer.Alamat,
 		customer.Email,
-		customer.Nama_Produk,
-		customer.Deskripsi,
-		customer.Harga,
-		customer.Gambar,
-		customer.Stok)
+		)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  http.StatusInternalServerError,
