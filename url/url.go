@@ -27,10 +27,13 @@ func Web(page *fiber.App) {
 
 	//endpoint bagian produk 
 	page.Get("/produk", controller.GetProduks)//memanggil data produk
+	page.Get("/produk/makanan", func(c *fiber.Ctx) error { return controller.GetAllProduksByKategori(c, "Makanan") })//produk kategori berdasarkan makanan 
+	page.Get("/produk/minuman", func(c *fiber.Ctx) error { return controller.GetAllProduksByKategori(c, "Minuman")  }) // Produk kategori Minuman
 	page.Get("/produk/:id", controller.GetProduksID)//memangil data berdasarkan id 
 	page.Post("/insertproduk", controller.InsertDataProduk)//insert data produk
 	page.Put("/updateproduk/:id", controller.UpdateDataProduk)//update data produk
 	page.Delete("/deleteproduk/:id", controller.DeleteProduksByID)
+
 	//swager
 	page.Get("/docs/*", swagger.HandlerDefault)
 }

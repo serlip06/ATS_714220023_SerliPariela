@@ -23,10 +23,32 @@ func GetPelanggan(c *fiber.Ctx) error {
 	return c.JSON(ps)
 }
 
+//produk 
+//get produk untuk all 
 func GetProduks(c *fiber.Ctx) error {
-	ps := cek.GetAllProduks()
-	return c.JSON(ps)
+	// Ambil query "kategori" dari URL, default kosong jika tidak diberikan
+	kategori := c.Query("kategori", "")
+
+	// Panggil fungsi GetAllProduks dari module
+	produks, err := cek.GetAllProduks(kategori)
+	if err != nil {
+		// Jika ada error, kembalikan response dengan status 500
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": fmt.Sprintf("Error retrieving products: %v", err),
+		})
+	}
+
+	// Jika sukses, kembalikan response dengan status 200
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":  http.StatusOK,
+		"message": "Data produk berhasil diambil",
+		"data":    produks,
+	})
 }
+
+//customer 
+//get data customer 
 
 // GetPresensi godoc
 // @Summary Get All Data Customer.
@@ -50,6 +72,8 @@ func GetCustomer(c *fiber.Ctx) error{
 // 	pelanggan := cek.GetPelangganByID(pelangganID)
 // 	fmt.Println(pelanggan)
 // }
+
+//customer
 
 //memanggil id customer 
 // GetCustomerID godoc
@@ -237,7 +261,8 @@ func DeleteCustomerByID(c *fiber.Ctx) error {
 	})
 }
 
-//function untuk produk 
+//Produk
+//function untuk mengambil data produk by ID
 func GetProduksID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -268,10 +293,66 @@ func GetProduksID(c *fiber.Ctx) error {
 	}
 	return c.JSON(ps)
 }
+// function untuk get all pruduk 
+// catatan ini masi ga pake filter ya ntar kalo berhail dia manual nambahin jalurnya sendiri di linknya 
+func GetAllProduks(c *fiber.Ctx) error {
+	// Ambil parameter query "kategori"
+	kategori := c.Query("kategori", "") // Default-nya kosong jika tidak diisi
+
+	// Panggil fungsi GetAllProduks dari module
+	produks, err := cek.GetAllProduks(kategori)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": fmt.Sprintf("Error retrieving products: %v", err),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":  http.StatusOK,
+		"message": "Data produk berhasil diambil",
+		"data":    produks,
+	})
+}
+
+// fitur tambahan kalo mau endpointnya nambahin produk/makanan atau produk/minuman 
+func GetAllProduksByKategori(c *fiber.Ctx, kategori string) error {
+    // Pastikan kategori valid
+    if kategori == "" {
+        return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+            "status":  http.StatusBadRequest,
+            "message": "Kategori parameter is required",
+        })
+    }
+
+    produks, err := cek.GetAllProduks(kategori)
+    if err != nil {
+        return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+            "status":  http.StatusInternalServerError,
+            "message": fmt.Sprintf("Error retrieving products for kategori '%s': %v", kategori, err),
+        })
+    }
+
+    if len(produks) == 0 {
+        return c.Status(http.StatusNotFound).JSON(fiber.Map{
+            "status":  http.StatusNotFound,
+            "message": fmt.Sprintf("No products found for kategori '%s'", kategori),
+        })
+    }
+
+    return c.Status(http.StatusOK).JSON(fiber.Map{
+        "status":  http.StatusOK,
+        "message": fmt.Sprintf("Data produk kategori '%s' berhasil diambil", kategori),
+        "data":    produks,
+    })
+}
+
 //insert data produk
+//ini diperbaharui karena ada kategori 
 func InsertDataProduk(c *fiber.Ctx) error {
-	// db := config.Ulbimongoconn
 	var produk inimodel.Produk
+
+	// Parse body
 	if err := c.BodyParser(&produk); err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  http.StatusInternalServerError,
@@ -279,35 +360,23 @@ func InsertDataProduk(c *fiber.Ctx) error {
 		})
 	}
 
-	insertedID := cek.InsertDataProduk(
+	// Validasi kategori
+	if produk.Kategori != "Makanan" && produk.Kategori != "Minuman" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Kategori harus berupa 'Makanan' atau 'Minuman'",
+		})
+	}
+
+	// Insert data produk
+	insertedID, err := cek.InsertDataProduk(
 		produk.Nama_Produk,
 		produk.Deskripsi,
 		produk.Harga,
 		produk.Gambar,
 		produk.Stok,
+		produk.Kategori,
 	)
-
-	if insertedID == "" { // Assuming an empty string means an error occurred
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-			"status":  http.StatusInternalServerError,
-			"message": "Error inserting product data",
-		})
-	}
-	return c.Status(http.StatusOK).JSON(fiber.Map{
-		"status":      http.StatusOK,
-		"message":     "Data berhasil disimpan.",
-		"inserted_id": insertedID,
-	})
-}
-//update data produk 
-func UpdateDataProduk(c *fiber.Ctx) error {
-	db := config.Ulbimongoconn
-
-	// Get the ID from the URL parameter
-	id := c.Params("id")
-
-	// Parse the ID into an ObjectID
-	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  http.StatusInternalServerError,
@@ -315,7 +384,29 @@ func UpdateDataProduk(c *fiber.Ctx) error {
 		})
 	}
 
-	// Parse the request body into a Presensi object
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":      http.StatusOK,
+		"message":     "Data produk berhasil disimpan",
+		"inserted_id": insertedID,
+	})
+}
+
+//update data produk 
+// ini juga di perbaharui 
+func UpdateDataProduk(c *fiber.Ctx) error {
+	db := config.Ulbimongoconn
+
+	// Get the ID from the URL parameter
+	id := c.Params("id")
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Invalid id parameter",
+		})
+	}
+
+	// Parse the request body into Produk object
 	var produk inimodel.Produk
 	if err := c.BodyParser(&produk); err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
@@ -324,14 +415,24 @@ func UpdateDataProduk(c *fiber.Ctx) error {
 		})
 	}
 
-	// Call the Updatecustomer function with the parsed ID and the Presensi object
-	err = cek.UpdateProduks(db, "produk",
-		objectID,
+	// Validasi kategori
+	if produk.Kategori != "Makanan" && produk.Kategori != "Minuman" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Kategori harus berupa 'Makanan' atau 'Minuman'",
+		})
+	}
+
+	// Update data produk
+	err = cek.UpdateProduks(
+		db, "produk", objectID,
 		produk.Nama_Produk,
 		produk.Deskripsi,
 		produk.Harga,
 		produk.Gambar,
-		produk.Stok)
+		produk.Stok,
+		produk.Kategori,
+	)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  http.StatusInternalServerError,
@@ -341,7 +442,7 @@ func UpdateDataProduk(c *fiber.Ctx) error {
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"status":  http.StatusOK,
-		"message": "Data successfully updated",
+		"message": "Data produk berhasil diperbarui",
 	})
 }
 
