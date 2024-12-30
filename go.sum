@@ -97,8 +97,8 @@ github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUz
 github.com/rs/xid v1.5.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
 github.com/rs/zerolog v1.32.0 h1:keLypqrlIjaFsbmJOBdB/qvyF8KEtCWHwobLp5l/mQ0=
 github.com/rs/zerolog v1.32.0/go.mod h1:/7mN4D5sKwJLZQ2b/znpjC3/GQWY/xaDXUM0kKWRHss=
-github.com/serlip06/pointsalesofkantin v0.0.21 h1:fxHfIPpeCkbnj7XKYcPJOKLYLe10efekqWa7FTINQ14=
-github.com/serlip06/pointsalesofkantin v0.0.21/go.mod h1:K7tLeoUKzvhahm8bxhnq2eCucQNQzWjMQfjTeUYU9MA=
+github.com/serlip06/pointsalesofkantin v0.0.22 h1:BHtc9ZDfkDLdOKILwAyCHz3ygRnY2i1TKGSIVAv1dlE=
+github.com/serlip06/pointsalesofkantin v0.0.22/go.mod h1:JG1bMeure95K0fMNX9QPsBHCne+aUZJJRGQNIrlklJ4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=

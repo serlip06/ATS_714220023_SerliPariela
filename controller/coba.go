@@ -478,6 +478,208 @@ func DeleteProduksByID(c *fiber.Ctx) error {
 	})
 }
 
+// cartitem bagian keranjang 
+// get all cartitem 
+func GetCartItem(c *fiber.Ctx) error {
+	ps := cek.GetAllCartItems()
+	return c.JSON(ps)
+}
+
+// get cartitemfromID
+func GetCartItemID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Wrong parameter",
+		})
+	}
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Invalid id parameter",
+		})
+	}
+	ps, err := cek.GetCartItemFromID(objID, config.Ulbimongoconn, "cart_items")
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.Status(http.StatusNotFound).JSON(fiber.Map{
+				"status":  http.StatusNotFound,
+				"message": fmt.Sprintf("No data found for id %s", id),
+			})
+		}
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": fmt.Sprintf("Error retrieving data for id %s", id),
+		})
+	}
+	return c.JSON(ps)
+}
+
+//insert cartitem (keranjang)
+func InsertDataCartItem(c *fiber.Ctx) error {
+	var cartItem inimodel.CartItem
+
+	// Parse body
+	if err := c.BodyParser(&cartItem); err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+	}
+
+	// Validasi data produk dan jumlah stok
+	if cartItem.Quantity <= 0 {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Quantity harus lebih besar dari 0",
+		})
+	}
+
+	// Validasi jika produk ada
+	produk, err := cek.GetProduksFromID(cartItem.IDProduk, config.Ulbimongoconn, "produk")
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": fmt.Sprintf("Error retrieving product: %v", err),
+		})
+	}
+
+	// Cek apakah stok cukup untuk jumlah yang diminta
+	if produk.Stok < cartItem.Quantity {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Stok tidak cukup untuk produk ini",
+		})
+	}
+
+	// Menghitung subtotal
+	SubTotal := float64(cartItem.Quantity) * float64(produk.Harga)
+
+	// Insert data cart item
+	insertedID, err := cek.InsertDataCartItem(
+		cartItem.NamaProduk,       // Nama Produk
+		cartItem.IDProduk.Hex(),   // ID Produk sebagai string (hexadecimal)
+		SubTotal,                  // Subtotal (float64)
+	)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":      http.StatusOK,
+		"message":     "Data cart item berhasil disimpan",
+		"inserted_id": insertedID,
+	})
+}
+
+//update data chartitem
+func UpdateDataCartItem(c *fiber.Ctx) error {
+	// Parse ID dari parameter URL
+	id := c.Params("id")
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Invalid ID format",
+		})
+	}
+
+	// Parse body untuk mendapatkan data yang akan diperbarui
+	var cartItem inimodel.CartItem
+	if err := c.BodyParser(&cartItem); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Failed to parse request body",
+		})
+	}
+
+	// Validasi data yang akan diperbarui
+	if cartItem.Quantity <= 0 {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Quantity must be greater than 0",
+		})
+	}
+
+	// Perhitungan ulang SubTotal berdasarkan Quantity dan Harga
+	cartItem.SubTotal = cartItem.Harga * cartItem.Quantity
+
+	// Panggil fungsi UpdateCartItem dari backend
+	err = cek.UpdateCartItem(
+		config.Ulbimongoconn,  // Database connection
+		"cart_items",          // Nama koleksi
+		objectID,              // ID CartItem
+		cartItem.NamaProduk,   // Nama produk
+		cartItem.Harga,        // Harga produk
+		cartItem.Quantity,     // Jumlah produk
+	)
+	if err != nil {
+		if err.Error() == "no data has been changed with the specified ID" {
+			return c.Status(http.StatusNotFound).JSON(fiber.Map{
+				"status":  http.StatusNotFound,
+				"message": "No data found with the specified ID",
+			})
+		}
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": err.Error(),
+		})
+	}
+
+	// Berikan respon sukses
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":  http.StatusOK,
+		"message": "Cart item successfully updated",
+	})
+}
+
+// delete cartitem 
+func DeleteCartItemByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Wrong parameter",
+		})
+	}
+
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Invalid id parameter",
+		})
+	}
+
+	err = cek.DeleteCartItemByID(objID, config.Ulbimongoconn, "cart_items")
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": fmt.Sprintf("Error deleting data for id %s", id),
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":  http.StatusOK,
+		"message": fmt.Sprintf("Data with id %s deleted successfully", id),
+	})
+
+}
+
+
+
+
+
+
+
+
+
+
 // func GetPelangganByID(c *fiber.Ctx) error {
 // 	id := c.Params("id")
 // 	if id == "" {

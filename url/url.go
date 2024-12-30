@@ -34,6 +34,13 @@ func Web(page *fiber.App) {
 	page.Put("/updateproduk/:id", controller.UpdateDataProduk)//update data produk
 	page.Delete("/deleteproduk/:id", controller.DeleteProduksByID)
 
+	// endpoint bagian chartitem
+	page.Get("/chartitem", controller.GetCartItem)//memanggil data chart item
+	page.Get("/chartitem/:id", controller.GetCartItemID)//memanggil data chart item by id
+	page.Post("/insertchartitem", controller.InsertDataCartItem)//insert chart item
+	page.Put("/updatechartitem/:id", controller.UpdateDataCartItem)//update chart item
+	page.Delete("/deletechartitem/:id", controller.DeleteCartItemByID)//delete chart item
+
 	//swager
 	page.Get("/docs/*", swagger.HandlerDefault)
 }
