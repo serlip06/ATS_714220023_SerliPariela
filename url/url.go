@@ -18,7 +18,7 @@ func Web(page *fiber.App) {
 	page.Options("/", controller.Sink)
 
 	page.Get("/checkip", controller.Homepage)
-	page.Get("/pelanggan", controller.GetPelanggan)	
+	// page.Get("/pelanggan", controller.GetPelanggan)	
 	page.Get("/customer", controller.GetCustomer)//memanggil customer
 	page.Get("/customer/:id", controller.GetCustomerID)//memanggil data customer berdasarkan id
 	page.Post("/insert", controller.InsertDataCustomer)//post data customer (insert data)	
@@ -40,6 +40,11 @@ func Web(page *fiber.App) {
 	page.Post("/insertchartitem", controller.InsertDataCartItem)//insert chart item
 	page.Put("/updatechartitem/:id", controller.UpdateDataCartItem)//update chart item
 	page.Delete("/deletechartitem/:id", controller.DeleteCartItemByID)//delete chart item
+
+	//login register untuk user 
+	page.Post("/register", controller.RegisterHandler)
+	page.Post("/login", controller.LoginHandler)
+	page.Post("/approve-regis/:id", controller.ApproveRegistrationHandler)
 
 	//swager
 	page.Get("/docs/*", swagger.HandlerDefault)

@@ -19,10 +19,10 @@ func Homepage(c *fiber.Ctx) error {
 	return c.JSON(ipaddr)
 }
 
-func GetPelanggan(c *fiber.Ctx) error {
-	ps := cek.GetAllPelanggan()
-	return c.JSON(ps)
-}
+// func GetPelanggan(c *fiber.Ctx) error {
+// 	ps := cek.GetAllPelanggan()
+// 	return c.JSON(ps)
+// }
 
 //produk 
 //get produk untuk all 
