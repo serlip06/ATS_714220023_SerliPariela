@@ -565,10 +565,11 @@ func InsertDataCartItem(c *fiber.Ctx) error {
 	cartItem := inimodel.CartItem{
 		IDCartItem: primitive.NewObjectID(), // Buat ID baru untuk CartItem
 		IDProduk:   input.IDProduk,
-		NamaProduk: produk.Nama_Produk,
+		Nama_Produk: produk.Nama_Produk,
 		Harga:      produk.Harga,
 		Quantity:   input.Quantity,
 		SubTotal:   subTotal,
+		Gambar: produk.Gambar,
 	}
 
 	// Insert data ke MongoDB
