@@ -2,7 +2,8 @@ package url
 
 import (
 	"github.com/serlip06/ATS_714220023_SerliPariela/controller"
-	
+	//"go.mongodb.org/mongo-driver/mongo"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger" // swagger handler
 )
@@ -45,6 +46,9 @@ func Web(page *fiber.App) {
 	page.Post("/register", controller.RegisterHandler)
 	page.Post("/login", controller.LoginHandler)
 	page.Post("/approve-regis/:id", controller.ApproveRegistrationHandler)
+	// get data user 
+	page.Get("/user", controller.GetAllUsers) 
+	page.Get("/pendingregis", controller.GetAllPendingRegistrations)
 
 	//swager
 	page.Get("/docs/*", swagger.HandlerDefault)

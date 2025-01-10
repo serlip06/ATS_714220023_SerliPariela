@@ -1,16 +1,18 @@
 package controller
 
 import (
-
+	//"fmt"
 	"log"
 	"context"
 	"time"
 	"github.com/gofiber/fiber/v2"
+	// "go.mongodb.org/mongo-driver/mongo"
 
 	inimodel "github.com/serlip06/pointsalesofkantin/model"
 	cek "github.com/serlip06/pointsalesofkantin/module"
 	"golang.org/x/crypto/bcrypt"
 	"go.mongodb.org/mongo-driver/bson"
+	//"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var db = cek.MongoConnectdb("kantin")
@@ -117,4 +119,25 @@ func ApproveRegistrationHandler(c *fiber.Ctx) error {
         "pending": pending,
         "user":     user,
     })
+}
+
+//untuk men- Get data 
+func GetAllUsers(c *fiber.Ctx) error {
+	users, err := cek.GetAllUsers(db)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Error fetching users",
+		})
+	}
+	return c.JSON(users)
+}
+
+func GetAllPendingRegistrations(c *fiber.Ctx) error {
+	registrations, err := cek.GetAllPendingRegistrations(db)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Error fetching pending registrations",
+		})
+	}
+	return c.JSON(registrations)
 }
