@@ -7,7 +7,7 @@ require (
 	github.com/aiteung/musik v0.0.5
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/gofiber/swagger v1.1.0
-	github.com/serlip06/pointsalesofkantin v0.0.26
+	github.com/serlip06/pointsalesofkantin v0.0.27
 	github.com/swaggo/swag v1.16.3
 	go.mau.fi/whatsmeow v0.0.0-20240507080416-01b0547014dc
 	go.mongodb.org/mongo-driver v1.14.0

@@ -1,7 +1,7 @@
 package controller
 
 import (
-	//"fmt"
+	"fmt"
 	"log"
 	"context"
 	"time"
@@ -141,3 +141,141 @@ func GetAllPendingRegistrations(c *fiber.Ctx) error {
 	}
 	return c.JSON(registrations)
 }
+
+// handler untuk mnotifikasi 
+
+// var db = cek.MongoConnectdb("kantin")
+
+func UpdateProductHandler(c *fiber.Ctx) error {
+	// Ambil data produk dari request body
+	var produk inimodel.Produk
+	if err := c.BodyParser(&produk); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+	}
+
+	// Update produk ke database
+	if err := updateProductInDB(produk); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to update product"})
+	}
+
+	// Periksa apakah stok produk menipis atau habis
+	if produk.Stok == 0 {
+		// Stok habis, buat notifikasi stok habis
+		notification := cek.CreateOutOfStockNotificationFromProduk(produk)
+		if err := saveNotificationToDB(notification); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to save notification"})
+		}
+	} else if produk.Stok < 10 {
+		// Stok menipis, buat notifikasi stok menipis
+		notification := cek.CreateLowStockNotificationFromProduk(produk, 5)
+		if err := saveNotificationToDB(notification); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to save notification"})
+		}
+	}
+
+	// Notifikasi sukses
+	return c.Status(200).JSON(fiber.Map{"message": "Product updated and notifications created successfully"})
+}
+
+func updateProductInDB(produk inimodel.Produk) error {
+	// Gunakan db yang sudah dideklarasikan di luar fungsi
+	collection := db.Collection("products")
+	_, err := collection.UpdateOne(
+		context.Background(),
+		bson.M{"_id": produk.IDProduk},  // Pastikan IDProduk sesuai dengan field yang ada
+		bson.M{"$set": produk},           // Update produk dengan data terbaru
+	)
+	return err
+}
+
+//notif nambah barang
+func AddProductHandler(c *fiber.Ctx) error {
+	// Ambil data produk dari request body
+	var produk inimodel.Produk
+	if err := c.BodyParser(&produk); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+	}
+
+	// Tambahkan produk baru ke database
+	if err := addProductToDB(produk); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to add product"})
+	}
+
+	// Buat notifikasi untuk produk baru
+	notification := createNewProductNotification(produk)
+
+	// Simpan notifikasi ke database
+	if err := saveNotificationToDB(notification); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to save notification"})
+	}
+
+	// Periksa apakah stok produk menipis atau habis
+	if produk.Stok == 0 {
+		// Stok habis, buat notifikasi stok habis
+		notification := createOutOfStockNotification(produk)
+		if err := saveNotificationToDB(notification); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to save out of stock notification"})
+		}
+	} else if produk.Stok < 10 {
+		// Stok menipis, buat notifikasi stok menipis
+		notification := createLowStockNotification(produk, 5) // Ambang batas 5
+		if err := saveNotificationToDB(notification); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": "Failed to save low stock notification"})
+		}
+	}
+
+	// Notifikasi sukses
+	return c.Status(201).JSON(fiber.Map{
+		"message": fmt.Sprintf("Product '%s' added successfully and notifications created", produk.Nama_Produk),
+	})
+}
+
+func createNewProductNotification(produk inimodel.Produk) interface{} {
+	// Membuat notifikasi tentang produk baru
+	notification := map[string]interface{}{
+		"message": fmt.Sprintf("New product added: %s", produk.Nama_Produk),
+		"product_id": produk.IDProduk,
+		"product_name": produk.Nama_Produk,
+		"created_at": time.Now(),
+	}
+	return notification
+}
+
+// Fungsi untuk membuat notifikasi stok habis
+func createOutOfStockNotification(produk inimodel.Produk) interface{} {
+	notification := map[string]interface{}{
+		"message": fmt.Sprintf("Product out of stock: %s", produk.Nama_Produk),
+		"product_id": produk.IDProduk,
+		"created_at": time.Now(),
+	}
+	return notification
+}
+
+// Fungsi untuk membuat notifikasi stok menipis
+func createLowStockNotification(produk inimodel.Produk, threshold int) interface{} {
+    // Cek apakah stok produk lebih rendah dari threshold
+    if produk.Stok < threshold {
+        notification := map[string]interface{}{
+            "message": fmt.Sprintf("Low stock alert: %s, only %d items left", produk.Nama_Produk, produk.Stok),
+            "product_id": produk.IDProduk,
+            "created_at": time.Now(),
+        }
+        return notification
+    }
+    return nil // Jika stok tidak rendah, kembalikan nil
+}
+
+func addProductToDB(produk inimodel.Produk) error {
+	// Gunakan db yang sudah dideklarasikan di luar fungsi
+	collection := db.Collection("produk")
+	_, err := collection.InsertOne(context.Background(), produk) // Insert produk baru ke database
+	return err
+}
+
+func saveNotificationToDB(notification interface{}) error {
+	// Gunakan db yang sudah dideklarasikan di luar fungsi
+	collection := db.Collection("notifications")
+	_, err := collection.InsertOne(context.Background(), notification) // Menyimpan notifikasi ke database
+	return err
+}
+
