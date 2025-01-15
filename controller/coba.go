@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"time"
 	"fmt"
 	"github.com/aiteung/musik"
 	"github.com/gofiber/fiber/v2"
@@ -40,6 +41,13 @@ func GetProduks(c *fiber.Ctx) error {
 		})
 	}
 
+	// Tambahkan pengecekan dan pengisian CreatedAt jika kosong
+	for i := range produks {
+		if produks[i].CreatedAt.IsZero() {
+			produks[i].CreatedAt = time.Now()
+		}
+	}
+
 	// Jika sukses, kembalikan response dengan status 200
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"status":  http.StatusOK,
@@ -47,6 +55,7 @@ func GetProduks(c *fiber.Ctx) error {
 		"data":    produks,
 	})
 }
+
 
 //customer 
 //get data customer 
@@ -300,7 +309,7 @@ func GetAllProduks(c *fiber.Ctx) error {
 	// Ambil parameter query "kategori"
 	kategori := c.Query("kategori", "") // Default-nya kosong jika tidak diisi
 
-	// Panggil fungsi GetAllProduks dari module
+	// Panggil fungsi GetAllProduks dari backend
 	produks, err := cek.GetAllProduks(kategori)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
@@ -309,12 +318,20 @@ func GetAllProduks(c *fiber.Ctx) error {
 		})
 	}
 
+	// Periksa dan tambahkan properti CreatedAt jika kosong
+	for i := range produks {
+		if produks[i].CreatedAt.IsZero() {
+			produks[i].CreatedAt = time.Now()
+		}
+	}
+
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"status":  http.StatusOK,
 		"message": "Data produk berhasil diambil",
 		"data":    produks,
 	})
 }
+
 
 // fitur tambahan kalo mau endpointnya nambahin produk/makanan atau produk/minuman 
 func GetAllProduksByKategori(c *fiber.Ctx, kategori string) error {
@@ -369,7 +386,7 @@ func InsertDataProduk(c *fiber.Ctx) error {
 		})
 	}
 
-	// Insert data produk
+	// Insert data produk ke backend
 	insertedID, err := cek.InsertDataProduk(
 		produk.Nama_Produk,
 		produk.Deskripsi,
@@ -385,12 +402,17 @@ func InsertDataProduk(c *fiber.Ctx) error {
 		})
 	}
 
+	// Set properti CreatedAt dengan waktu saat ini
+	produk.CreatedAt = time.Now()
+
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"status":      http.StatusOK,
 		"message":     "Data produk berhasil disimpan",
 		"inserted_id": insertedID,
+		"created_at":  produk.CreatedAt,
 	})
 }
+
 
 //update data produk 
 // ini juga di perbaharui 
