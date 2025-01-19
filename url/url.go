@@ -3,7 +3,7 @@ package url
 import (
 	"github.com/serlip06/ATS_714220023_SerliPariela/controller"
 	//"go.mongodb.org/mongo-driver/mongo"
-
+	
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger" // swagger handler
 )
@@ -48,11 +48,18 @@ func Web(page *fiber.App) {
 	page.Post("/approve-regis/:id", controller.ApproveRegistrationHandler)
 	// get data user 
 	page.Get("/user", controller.GetAllUsers) 
+	// page.Get("/user/:id", controller.GetUserByID)
 	page.Get("/pendingregis", controller.GetAllPendingRegistrations)
 	//notifikasi 
 	page.Post("/update-product", controller.UpdateProductHandler)  // Misalnya menggunakan metode PUT
 	page.Post("/add-product", controller.AddProductHandler)
 
+	//transaksi
+	page.Get("/transaksi", controller.GetAllTransaksi)
+	page.Get("/transaksi/:id", controller.GetTransaksiByID)
+	page.Post("/inserttransaksi", controller.InsertTransaksi)
+	page.Put("/updatetransaksi", controller.UpdateTransaksi)
+	page.Delete("/deletetransaksi/:id", controller.DeleteTransaksiByID)
 	//swager
 	page.Get("/docs/*", swagger.HandlerDefault)
 }

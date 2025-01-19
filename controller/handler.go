@@ -1,18 +1,20 @@
 package controller
 
 import (
+	
 	"fmt"
 	"log"
 	"context"
 	"time"
 	"github.com/gofiber/fiber/v2"
-	// "go.mongodb.org/mongo-driver/mongo"
 
 	inimodel "github.com/serlip06/pointsalesofkantin/model"
 	cek "github.com/serlip06/pointsalesofkantin/module"
+	//"go.mongodb.org/mongo-driver/bson/primitive"
+	//"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 	"go.mongodb.org/mongo-driver/bson"
-	//"go.mongodb.org/mongo-driver/bson/primitive"
+	
 )
 
 var db = cek.MongoConnectdb("kantin")
@@ -131,6 +133,36 @@ func GetAllUsers(c *fiber.Ctx) error {
 	}
 	return c.JSON(users)
 }
+// get user byid
+// func GetUserByID(userID string, db *mongo.Database) (*inimodel.User, error) {
+// 	collection := db.Collection("users")
+// 	var user inimodel.User
+
+// 	// Konversi ID string ke ObjectID
+// 	objID, err := primitive.ObjectIDFromHex(userID)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("invalid user ID format: %v", err)
+// 	}
+
+// 	// Mencari dokumen berdasarkan ID
+// 	err = collection.FindOne(context.TODO(), bson.M{"_id": objID}).Decode(&user)
+// 	if err != nil {
+// 		log.Println("Error decoding user:", err) // Menambahkan log error
+
+// 		if err == mongo.ErrNoDocuments {
+// 			// Menangani kasus tidak ditemukan dokumen
+// 			return nil, fmt.Errorf("user dengan ID %s tidak ditemukan", userID)
+// 		}
+// 		// Menangani error lain yang terjadi selama pencarian atau dekode
+// 		return nil, fmt.Errorf("error retrieving user: %v", err)
+// 	}
+
+// 	// Mengembalikan objek user jika ditemukan
+// 	return &user, nil
+// }
+
+
+
 
 func GetAllPendingRegistrations(c *fiber.Ctx) error {
 	registrations, err := cek.GetAllPendingRegistrations(db)
