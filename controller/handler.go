@@ -1,19 +1,20 @@
 package controller
 
 import (
-	
+	"errors"
 	"fmt"
 	"log"
 	"context"
 	"time"
 	"github.com/gofiber/fiber/v2"
-
+	"github.com/serlip06/ATS_714220023_SerliPariela/config"
 	inimodel "github.com/serlip06/pointsalesofkantin/model"
 	cek "github.com/serlip06/pointsalesofkantin/module"
-	//"go.mongodb.org/mongo-driver/bson/primitive"
-	//"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 	"go.mongodb.org/mongo-driver/bson"
+	"net/http"
 	
 )
 
@@ -160,6 +161,36 @@ func GetAllUsers(c *fiber.Ctx) error {
 // 	// Mengembalikan objek user jika ditemukan
 // 	return &user, nil
 // }
+func GetUserByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Wrong parameter",
+		})
+	}
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Invalid id parameter",
+		})
+	}
+	ps, err := cek.GetUserFromID(objID, config.Ulbimongoconn, "users")
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.Status(http.StatusNotFound).JSON(fiber.Map{
+				"status":  http.StatusNotFound,
+				"message": fmt.Sprintf("No data found for id %s", id),
+			})
+		}
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": fmt.Sprintf("Error retrieving data for id %s", id),
+		})
+	}
+	return c.JSON(ps)
+}
 
 
 

@@ -48,7 +48,7 @@ func Web(page *fiber.App) {
 	page.Post("/approve-regis/:id", controller.ApproveRegistrationHandler)
 	// get data user 
 	page.Get("/user", controller.GetAllUsers) 
-	// page.Get("/user/:id", controller.GetUserByID)
+	page.Get("/user/:id", controller.GetUserByID)
 	page.Get("/pendingregis", controller.GetAllPendingRegistrations)
 	//notifikasi 
 	page.Post("/update-product", controller.UpdateProductHandler)  // Misalnya menggunakan metode PUT
