@@ -540,11 +540,12 @@ func GetCartItemID(c *fiber.Ctx) error {
 	return c.JSON(ps)
 }
 
-//insert cartitem (keranjang)
+// InsertDataCartItem (Keranjang)
 func InsertDataCartItem(c *fiber.Ctx) error {
 	var input struct {
 		IDProduk  primitive.ObjectID `json:"id_produk"`  // ID Produk sebagai input
 		Quantity  int                `json:"quantity"`   // Jumlah produk
+		IDUser    primitive.ObjectID `json:"id_user"`    // ID User sebagai input baru
 	}
 
 	// Parse body
@@ -587,11 +588,12 @@ func InsertDataCartItem(c *fiber.Ctx) error {
 	cartItem := inimodel.CartItem{
 		IDCartItem: primitive.NewObjectID(), // Buat ID baru untuk CartItem
 		IDProduk:   input.IDProduk,
+		IDUser:     input.IDUser,            // Tambahkan IDUser ke dalam data
 		Nama_Produk: produk.Nama_Produk,
 		Harga:      produk.Harga,
 		Quantity:   input.Quantity,
 		SubTotal:   subTotal,
-		Gambar: produk.Gambar,
+		Gambar:     produk.Gambar,
 	}
 
 	// Insert data ke MongoDB
@@ -610,6 +612,7 @@ func InsertDataCartItem(c *fiber.Ctx) error {
 		"cart_item":   cartItem,
 	})
 }
+
 
 //update data chartitem
 func UpdateDataCartItem(c *fiber.Ctx) error {
@@ -681,7 +684,6 @@ func UpdateDataCartItem(c *fiber.Ctx) error {
 }
 
 
-// delete cartitem 
 func DeleteCartItemByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -699,7 +701,9 @@ func DeleteCartItemByID(c *fiber.Ctx) error {
 		})
 	}
 
-	err = cek.DeleteCartItemByID(objID, config.Ulbimongoconn, "cart_items")
+	// Hapus data dari database tanpa validasi IDUser
+	collection := config.Ulbimongoconn.Collection("cart_items")
+	result, err := collection.DeleteOne(c.Context(), bson.M{"_id": objID})
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  http.StatusInternalServerError,
@@ -707,11 +711,18 @@ func DeleteCartItemByID(c *fiber.Ctx) error {
 		})
 	}
 
+	// Periksa apakah ada dokumen yang dihapus
+	if result.DeletedCount == 0 {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{
+			"status":  http.StatusNotFound,
+			"message": "Cart item not found",
+		})
+	}
+
 	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"status":  http.StatusOK,
 		"message": fmt.Sprintf("Data with id %s deleted successfully", id),
 	})
-
 }
 
 

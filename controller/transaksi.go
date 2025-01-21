@@ -15,14 +15,14 @@ import (
 	//"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 )
-
 // Fungsi untuk menambahkan transaksi baru
 func InsertTransaksi(c *fiber.Ctx) error {
 	var input struct {
-		IDUser          primitive.ObjectID `json:"id_user"`
-		Username        string             `json:"username"`
-		Items           []inimodel.CartItem   `json:"items"`
-		MetodePembayaran string            `json:"metode_pembayaran"`
+		IDUser           primitive.ObjectID `json:"id_user"`
+		Username         string             `json:"username"`
+		Items            []inimodel.CartItem `json:"items"`
+		MetodePembayaran string             `json:"metode_pembayaran"`
+		Buktipembayaran  string             `json:"bukti_pembayaran"` // Tambahkan field bukti_pembayaran
 	}
 
 	// Parse body
@@ -42,6 +42,14 @@ func InsertTransaksi(c *fiber.Ctx) error {
 		})
 	}
 
+	// Validasi bukti_pembayaran (jika perlu)
+	if input.Buktipembayaran == "" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Payment proof is required",
+		})
+	}
+
 	// Hitung total harga
 	calculatedTotal := calculateTotalHarga(input.Items)
 
@@ -54,6 +62,7 @@ func InsertTransaksi(c *fiber.Ctx) error {
 		TotalHarga:       calculatedTotal,
 		MetodePembayaran: input.MetodePembayaran,
 		CreatedAt:        time.Now(),
+		Buktipembayaran:  input.Buktipembayaran, // Menambahkan bukti_pembayaran
 	}
 
 	// Simpan transaksi ke database
@@ -72,7 +81,6 @@ func InsertTransaksi(c *fiber.Ctx) error {
 		"transaction": result,
 	})
 }
-
 
 // Fungsi untuk menghitung total harga
 func calculateTotalHarga(items []inimodel.CartItem) int {
@@ -151,7 +159,17 @@ func UpdateTransaksi(c *fiber.Ctx) error {
 
 	collection := config.Ulbimongoconn.Collection("kantin_transaksi")
 	filter := bson.M{"_id": objID}
-	update := bson.M{"$set": input}
+
+	// Update transaksi dengan bukti_pembayaran
+	update := bson.M{"$set": bson.M{
+		"IDUser":           input.IDUser,
+		"Username":         input.Username,
+		"Items":            input.Items,
+		"TotalHarga":       input.TotalHarga,
+		"MetodePembayaran": input.MetodePembayaran,
+		"CreatedAt":        input.CreatedAt,
+		"Buktipembayaran":  input.Buktipembayaran, // Menambahkan bukti_pembayaran
+	}}
 
 	result, err := collection.UpdateOne(c.Context(), filter, update)
 	if err != nil || result.ModifiedCount == 0 {
@@ -166,6 +184,7 @@ func UpdateTransaksi(c *fiber.Ctx) error {
 		"message": "Transaction successfully updated",
 	})
 }
+
 
 // Fungsi untuk menghapus transaksi
 func DeleteTransaksiByID(c *fiber.Ctx) error {
