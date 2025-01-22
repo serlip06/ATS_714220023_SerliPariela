@@ -58,7 +58,7 @@ func Web(page *fiber.App) {
 	page.Get("/transaksi", controller.GetAllTransaksi)
 	page.Get("/transaksi/:id", controller.GetTransaksiByID)
 	page.Post("/inserttransaksi", controller.InsertTransaksi)
-	page.Put("/updatetransaksi", controller.UpdateTransaksi)
+	page.Put("/updatetransaksi/:id", controller.UpdateTransaksi)
 	page.Delete("/deletetransaksi/:id", controller.DeleteTransaksiByID)
 	//swager
 	page.Get("/docs/*", swagger.HandlerDefault)
