@@ -2,8 +2,8 @@ package controller
 
 import (
 	//"errors"
-	"time"
 	"context"
+	"time"
 	//"fmt"
 	//"github.com/aiteung/musik"
 	"github.com/gofiber/fiber/v2"
@@ -15,14 +15,17 @@ import (
 	//"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 )
+
 // Fungsi untuk menambahkan transaksi baru
 func InsertTransaksi(c *fiber.Ctx) error {
 	var input struct {
-		IDUser           primitive.ObjectID `json:"id_user"`
-		Username         string             `json:"username"`
+		IDUser           primitive.ObjectID  `json:"id_user"`
+		Username         string              `json:"username"`
 		Items            []inimodel.CartItem `json:"items"`
-		MetodePembayaran string             `json:"metode_pembayaran"`
-		Buktipembayaran  string             `json:"bukti_pembayaran"` // Tambahkan field bukti_pembayaran
+		MetodePembayaran string              `json:"metode_pembayaran"`
+		Buktipembayaran  string              `json:"bukti_pembayaran"` // Tambahkan field bukti_pembayaran
+		Status           string              `json:"status"`           // Tambahkan status
+		Alamat           string              `json:"alamat,omitempty"` // tambahkan alamat
 	}
 
 	// Parse body
@@ -63,6 +66,8 @@ func InsertTransaksi(c *fiber.Ctx) error {
 		MetodePembayaran: input.MetodePembayaran,
 		CreatedAt:        time.Now(),
 		Buktipembayaran:  input.Buktipembayaran, // Menambahkan bukti_pembayaran
+		Status:           input.Status,          // Set status
+		Alamat:           input.Alamat,          // Set alamat
 	}
 
 	// Simpan transaksi ke database
@@ -169,6 +174,8 @@ func UpdateTransaksi(c *fiber.Ctx) error {
 		"MetodePembayaran": input.MetodePembayaran,
 		"CreatedAt":        input.CreatedAt,
 		"Buktipembayaran":  input.Buktipembayaran, // Menambahkan bukti_pembayaran
+		"Status":           input.Status,  // Update status
+		"Alamat":           input.Alamat,  // Update alamat
 	}}
 
 	result, err := collection.UpdateOne(c.Context(), filter, update)
@@ -184,7 +191,6 @@ func UpdateTransaksi(c *fiber.Ctx) error {
 		"message": "Transaction successfully updated",
 	})
 }
-
 
 // Fungsi untuk menghapus transaksi
 func DeleteTransaksiByID(c *fiber.Ctx) error {
