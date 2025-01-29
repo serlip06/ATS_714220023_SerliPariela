@@ -217,3 +217,40 @@ func DeleteTransaksiByID(c *fiber.Ctx) error {
 		"message": "Transaction successfully deleted",
 	})
 }
+
+// get transaksi dari id user
+func GetTransaksiByUserID(c *fiber.Ctx) error {
+    userID := c.Params("id") // Ambil userID dari URL parameter
+
+    // Ambil transaksi berdasarkan ID user
+    transaksis, err := cek.GetAllTransaksiByIDUser(userID, config.Ulbimongoconn) // Memanggil fungsi backend yang sudah ada
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "status":  fiber.StatusBadRequest,
+            "message": "Invalid user ID format",
+            "error":   err.Error(),
+        })
+    }
+
+    // Jika tidak ada transaksi ditemukan
+    if len(transaksis) == 0 {
+        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+            "status":  fiber.StatusNotFound,
+            "message": "No transactions found for this user",
+        })
+    }
+
+    // Kembalikan transaksi yang ditemukan
+    return c.JSON(transaksis)
+}
+
+
+// Helper function untuk memeriksa apakah string hanya mengandung karakter hexadecimal
+// func isValidHex(s string) bool {
+// 	for _, c := range s {
+// 		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+// 			return false
+// 		}
+// 	}
+// 	return true
+// }

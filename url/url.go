@@ -57,6 +57,7 @@ func Web(page *fiber.App) {
 	//transaksi
 	page.Get("/transaksi", controller.GetAllTransaksi)
 	page.Get("/transaksi/:id", controller.GetTransaksiByID)
+	page.Get("/transaksi-user/:id", controller.GetTransaksiByUserID)
 	page.Post("/inserttransaksi", controller.InsertTransaksi)
 	page.Put("/updatetransaksi/:id", controller.UpdateTransaksi)
 	page.Delete("/deletetransaksi/:id", controller.DeleteTransaksiByID)
