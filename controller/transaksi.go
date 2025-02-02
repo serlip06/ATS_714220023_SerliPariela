@@ -2,6 +2,7 @@ package controller
 
 import (
 	//"errors"
+	"fmt"
 	"context"
 	"time"
 	//"fmt"
@@ -17,18 +18,19 @@ import (
 )
 
 // Fungsi untuk menambahkan transaksi baru
+
+// InsertTransaksi - Menambahkan transaksi baru
 func InsertTransaksi(c *fiber.Ctx) error {
 	var input struct {
-		IDUser           primitive.ObjectID  `json:"id_user"`
-		Username         string              `json:"username"`
-		Items            []inimodel.CartItem `json:"items"`
-		MetodePembayaran string              `json:"metode_pembayaran"`
-		Buktipembayaran  string              `json:"bukti_pembayaran"` // Tambahkan field bukti_pembayaran
-		Status           string              `json:"status"`           // Tambahkan status
-		Alamat           string              `json:"alamat,omitempty"` // tambahkan alamat
+		IDUser           primitive.ObjectID   `json:"id_user"`
+		IDCartItem       []primitive.ObjectID `json:"id_cartitem"`
+		MetodePembayaran string               `json:"metode_pembayaran"`
+		BuktiPembayaran  string               `json:"bukti_pembayaran"`
+		Status           string               `json:"status"`
+		Alamat           string               `json:"alamat,omitempty"`
 	}
 
-	// Parse body
+	// Parse body JSON
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 			"status":  http.StatusBadRequest,
@@ -37,37 +39,35 @@ func InsertTransaksi(c *fiber.Ctx) error {
 		})
 	}
 
-	// Validasi Items tidak boleh kosong
-	if len(input.Items) == 0 {
+	// Validasi CartItem tidak boleh kosong
+	if len(input.IDCartItem) == 0 {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 			"status":  http.StatusBadRequest,
-			"message": "Items cannot be empty",
+			"message": "Cart items cannot be empty",
 		})
 	}
 
-	// Validasi bukti_pembayaran (jika perlu)
-	if input.Buktipembayaran == "" {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			"status":  http.StatusBadRequest,
-			"message": "Payment proof is required",
+	// Hitung total harga berdasarkan CartItem
+	totalHarga, err := calculateTotalHarga(input.IDCartItem) // ✅ Pastikan menangkap 2 nilai
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Failed to calculate total price",
+			"error":   err.Error(),
 		})
 	}
-
-	// Hitung total harga
-	calculatedTotal := calculateTotalHarga(input.Items)
 
 	// Buat objek transaksi
 	transaksi := inimodel.Transaksi{
 		IDTransaksi:      primitive.NewObjectID(),
 		IDUser:           input.IDUser,
-		Username:         input.Username,
-		Items:            input.Items,
-		TotalHarga:       calculatedTotal,
+		IDCartItem:       input.IDCartItem,
+		TotalHarga:       totalHarga, // ✅ Menggunakan total harga yang dihitung
 		MetodePembayaran: input.MetodePembayaran,
 		CreatedAt:        time.Now(),
-		Buktipembayaran:  input.Buktipembayaran, // Menambahkan bukti_pembayaran
-		Status:           input.Status,          // Set status
-		Alamat:           input.Alamat,          // Set alamat
+		BuktiPembayaran:  input.BuktiPembayaran,
+		Status:           input.Status,
+		Alamat:           input.Alamat,
 	}
 
 	// Simpan transaksi ke database
@@ -87,14 +87,27 @@ func InsertTransaksi(c *fiber.Ctx) error {
 	})
 }
 
+
+
 // Fungsi untuk menghitung total harga
-func calculateTotalHarga(items []inimodel.CartItem) int {
+
+func calculateTotalHarga(idCartItems []primitive.ObjectID) (int, error) {
+	collection := config.Ulbimongoconn.Collection("cart_items")
 	total := 0
-	for _, item := range items {
-		total += item.SubTotal
+
+	for _, cartItemID := range idCartItems {
+		var cartItem inimodel.CartItem
+		err := collection.FindOne(context.TODO(), bson.M{"_id": cartItemID}).Decode(&cartItem)
+		if err != nil {
+			return 0, fmt.Errorf("failed to retrieve cart item: %w", err)
+		}
+		total += cartItem.SubTotal // ✅ Pastikan model.CartItem memiliki field SubTotal
 	}
-	return total
+
+	return total, nil
 }
+
+
 
 // Fungsi untuk mendapatkan transaksi berdasarkan ID
 func GetTransaksiByID(c *fiber.Ctx) error {
@@ -154,7 +167,15 @@ func UpdateTransaksi(c *fiber.Ctx) error {
 		})
 	}
 
-	var input inimodel.Transaksi
+	var input struct {
+		IDUser           primitive.ObjectID   `json:"id_user"`
+		IDCartItem       []primitive.ObjectID `json:"id_cartitem"`
+		MetodePembayaran string               `json:"metode_pembayaran"`
+		BuktiPembayaran  string               `json:"bukti_pembayaran"`
+		Status           string               `json:"status"`
+		Alamat           string               `json:"alamat,omitempty"`
+	}
+
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 			"status":  http.StatusBadRequest,
@@ -162,20 +183,28 @@ func UpdateTransaksi(c *fiber.Ctx) error {
 		})
 	}
 
+	// Hitung total harga berdasarkan CartItem
+	calculatedTotal, err := calculateTotalHarga(input.IDCartItem)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Failed to calculate total price",
+			"error":   err.Error(),
+		})
+	}
+
 	collection := config.Ulbimongoconn.Collection("kantin_transaksi")
 	filter := bson.M{"_id": objID}
 
-	// Update transaksi dengan bukti_pembayaran
+	// Update transaksi dengan data terbaru
 	update := bson.M{"$set": bson.M{
-		"IDUser":           input.IDUser,
-		"Username":         input.Username,
-		"Items":            input.Items,
-		"TotalHarga":       input.TotalHarga,
-		"MetodePembayaran": input.MetodePembayaran,
-		"CreatedAt":        input.CreatedAt,
-		"Buktipembayaran":  input.Buktipembayaran, // Menambahkan bukti_pembayaran
-		"Status":           input.Status,  // Update status
-		"Alamat":           input.Alamat,  // Update alamat
+		"id_user":           input.IDUser,
+		"id_cartitem":       input.IDCartItem,
+		"total_harga":       calculatedTotal,
+		"metode_pembayaran": input.MetodePembayaran,
+		"bukti_pembayaran":  input.BuktiPembayaran,
+		"status":            input.Status,
+		"alamat":            input.Alamat,
 	}}
 
 	result, err := collection.UpdateOne(c.Context(), filter, update)
@@ -191,6 +220,7 @@ func UpdateTransaksi(c *fiber.Ctx) error {
 		"message": "Transaction successfully updated",
 	})
 }
+
 
 // Fungsi untuk menghapus transaksi
 func DeleteTransaksiByID(c *fiber.Ctx) error {
@@ -244,6 +274,15 @@ func GetTransaksiByUserID(c *fiber.Ctx) error {
     return c.JSON(transaksis)
 }
 
+
+//cadangan 
+// func calculateTotalHarga(items []inimodel.CartItem) int {
+// 	total := 0
+// 	for _, item := range items {
+// 		total += item.SubTotal
+// 	}
+// 	return total
+// }
 
 // Helper function untuk memeriksa apakah string hanya mengandung karakter hexadecimal
 // func isValidHex(s string) bool {

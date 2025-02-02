@@ -41,6 +41,10 @@ func Web(page *fiber.App) {
 	page.Post("/insertchartitem", controller.InsertDataCartItem)//insert chart item
 	page.Put("/updatechartitem/:id", controller.UpdateDataCartItem)//update chart item
 	page.Delete("/deletechartitem/:id", controller.DeleteCartItemByID)//delete chart item
+	page.Post("/checkout", controller.CheckoutFromCart) // Checkout cart item
+	page.Put("/cart-items/:id/select", controller.UpdateCartItemSelection)
+
+
 
 	//login register untuk user 
 	page.Post("/register", controller.RegisterHandler)

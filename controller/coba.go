@@ -502,6 +502,7 @@ func DeleteProduksByID(c *fiber.Ctx) error {
 }
 
 // cartitem bagian keranjang 
+
 // get all cartitem 
 func GetCartItem(c *fiber.Ctx) error {
 	ps := cek.GetAllCartItems()
@@ -543,12 +544,12 @@ func GetCartItemID(c *fiber.Ctx) error {
 // InsertDataCartItem (Keranjang)
 func InsertDataCartItem(c *fiber.Ctx) error {
 	var input struct {
-		IDProduk  primitive.ObjectID `json:"id_produk"`  // ID Produk sebagai input
-		Quantity  int                `json:"quantity"`   // Jumlah produk
-		IDUser    primitive.ObjectID `json:"id_user"`    // ID User sebagai input baru
+		IDProduk  primitive.ObjectID `json:"id_produk"`
+		Quantity  int                `json:"quantity"`
+		IDUser    primitive.ObjectID `json:"id_user"`
+		IsSelected bool              `json:"is_selected"` // Tambahkan field ini
 	}
 
-	// Parse body
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  http.StatusInternalServerError,
@@ -556,15 +557,6 @@ func InsertDataCartItem(c *fiber.Ctx) error {
 		})
 	}
 
-	// Validasi input
-	if input.Quantity <= 0 {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
-			"status":  http.StatusBadRequest,
-			"message": "Quantity harus lebih besar dari 0",
-		})
-	}
-
-	// Ambil data produk berdasarkan IDProduk
 	produk, err := cek.GetProduksFromID(input.IDProduk, config.Ulbimongoconn, "produk")
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
@@ -573,7 +565,6 @@ func InsertDataCartItem(c *fiber.Ctx) error {
 		})
 	}
 
-	// Validasi stok
 	if produk.Stok < input.Quantity {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 			"status":  http.StatusBadRequest,
@@ -581,22 +572,19 @@ func InsertDataCartItem(c *fiber.Ctx) error {
 		})
 	}
 
-	// Hitung subtotal
 	subTotal := input.Quantity * produk.Harga
-
-	// Buat data cart item
 	cartItem := inimodel.CartItem{
-		IDCartItem: primitive.NewObjectID(), // Buat ID baru untuk CartItem
+		IDCartItem: primitive.NewObjectID(),
 		IDProduk:   input.IDProduk,
-		IDUser:     input.IDUser,            // Tambahkan IDUser ke dalam data
+		IDUser:     input.IDUser,
 		Nama_Produk: produk.Nama_Produk,
 		Harga:      produk.Harga,
 		Quantity:   input.Quantity,
 		SubTotal:   subTotal,
 		Gambar:     produk.Gambar,
+		IsSelected:  input.IsSelected, // Simpan nilai is_selected
 	}
 
-	// Insert data ke MongoDB
 	collection := config.Ulbimongoconn.Collection("cart_items")
 	_, err = collection.InsertOne(c.Context(), cartItem)
 	if err != nil {
@@ -613,8 +601,85 @@ func InsertDataCartItem(c *fiber.Ctx) error {
 	})
 }
 
+// funsi untuk checkout tambahan 
+func UpdateCartItemSelection(c *fiber.Ctx) error {
+	id := c.Params("id")
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Invalid ID format",
+		})
+	}
 
-//update data chartitem
+	var input struct {
+		IsSelected bool `json:"is_selected"`
+	}
+	if err := c.BodyParser(&input); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Failed to parse request body",
+		})
+	}
+
+	collection := config.Ulbimongoconn.Collection("cart_items")
+	update := bson.M{"$set": bson.M{"is_selected": input.IsSelected}}
+	_, err = collection.UpdateOne(c.Context(), bson.M{"_id": objID}, update)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Failed to update selection",
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":  http.StatusOK,
+		"message": "Cart item selection updated successfully",
+	})
+}
+// function untuk checkout 
+func CheckoutFromCart(c *fiber.Ctx) error {
+	var input struct {
+		IDUser           primitive.ObjectID `json:"id_user"`
+		MetodePembayaran string            `json:"metode_pembayaran"`
+		BuktiPembayaran  string            `json:"bukti_pembayaran"`
+		Alamat           string            `json:"alamat"`
+	}
+
+	// Perbaikan: Status error menjadi 400 (Bad Request)
+	if err := c.BodyParser(&input); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Invalid request body",
+		})
+	}
+
+	// Periksa apakah `IDUser` valid (jangan kosong)
+	if input.IDUser.IsZero() {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "IDUser is required",
+		})
+	}
+
+	// Pastikan pemanggilan module sesuai dengan struktur kode kamu
+	transaksiID, err := cek.CheckoutFromCart(config.Ulbimongoconn, input.IDUser, input.MetodePembayaran, input.BuktiPembayaran, input.Alamat)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Checkout failed",
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"status":         http.StatusOK,
+		"message":        "Checkout successful",
+		"transaction_id": transaksiID,
+	})
+}
+
+
+//update data keranjang
 func UpdateDataCartItem(c *fiber.Ctx) error {
     // Parse ID dari parameter URL
     id := c.Params("id")
@@ -683,7 +748,7 @@ func UpdateDataCartItem(c *fiber.Ctx) error {
     })
 }
 
-
+// hapus dari keranjang
 func DeleteCartItemByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -724,6 +789,81 @@ func DeleteCartItemByID(c *fiber.Ctx) error {
 		"message": fmt.Sprintf("Data with id %s deleted successfully", id),
 	})
 }
+
+
+// cadangan untuk cartitem
+
+// func InsertDataCartItem(c *fiber.Ctx) error {
+// 	var input struct {
+// 		IDProduk  primitive.ObjectID `json:"id_produk"`  // ID Produk sebagai input
+// 		Quantity  int                `json:"quantity"`   // Jumlah produk
+// 		IDUser    primitive.ObjectID `json:"id_user"`    // ID User sebagai input baru
+// 	}
+
+// 	// Parse body
+// 	if err := c.BodyParser(&input); err != nil {
+// 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+// 			"status":  http.StatusInternalServerError,
+// 			"message": err.Error(),
+// 		})
+// 	}
+
+// 	// Validasi input
+// 	if input.Quantity <= 0 {
+// 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+// 			"status":  http.StatusBadRequest,
+// 			"message": "Quantity harus lebih besar dari 0",
+// 		})
+// 	}
+
+// 	// Ambil data produk berdasarkan IDProduk
+// 	produk, err := cek.GetProduksFromID(input.IDProduk, config.Ulbimongoconn, "produk")
+// 	if err != nil {
+// 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+// 			"status":  http.StatusInternalServerError,
+// 			"message": fmt.Sprintf("Error retrieving product: %v", err),
+// 		})
+// 	}
+
+// 	// Validasi stok
+// 	if produk.Stok < input.Quantity {
+// 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+// 			"status":  http.StatusBadRequest,
+// 			"message": "Stok tidak cukup untuk produk ini",
+// 		})
+// 	}
+
+// 	// Hitung subtotal
+// 	subTotal := input.Quantity * produk.Harga
+
+// 	// Buat data cart item
+// 	cartItem := inimodel.CartItem{
+// 		IDCartItem: primitive.NewObjectID(), // Buat ID baru untuk CartItem
+// 		IDProduk:   input.IDProduk,
+// 		IDUser:     input.IDUser,            // Tambahkan IDUser ke dalam data
+// 		Nama_Produk: produk.Nama_Produk,
+// 		Harga:      produk.Harga,
+// 		Quantity:   input.Quantity,
+// 		SubTotal:   subTotal,
+// 		Gambar:     produk.Gambar,
+// 	}
+
+// 	// Insert data ke MongoDB
+// 	collection := config.Ulbimongoconn.Collection("cart_items")
+// 	_, err = collection.InsertOne(c.Context(), cartItem)
+// 	if err != nil {
+// 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+// 			"status":  http.StatusInternalServerError,
+// 			"message": err.Error(),
+// 		})
+// 	}
+
+// 	return c.Status(http.StatusOK).JSON(fiber.Map{
+// 		"status":      http.StatusOK,
+// 		"message":     "Data cart item berhasil disimpan",
+// 		"cart_item":   cartItem,
+// 	})
+// }
 
 
 
