@@ -1,5 +1,43 @@
 basePath: /
 definitions:
+  controller.CartItem:
+    properties:
+      _id:
+        description: ID unik untuk item keranjang
+        example: "1234567"
+        type: string
+      gambar:
+        description: Gambar produk
+        example: https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg
+        type: string
+      harga:
+        description: Harga produk pada saat dimasukkan ke keranjang
+        example: 5000
+        type: integer
+      id_produk:
+        description: Referensi ke ID Produk
+        example: "1234567"
+        type: string
+      id_user:
+        example: "1234567"
+        type: string
+      is_selected:
+        description: Tambahkan flag ini
+        example: true
+        type: boolean
+      nama_produk:
+        description: nama untuk produknya
+        example: ikan bakar
+        type: string
+      quantity:
+        description: Jumlah produk dalam keranjang
+        example: 1
+        type: integer
+      sub_total:
+        description: Total harga (Harga * Quantity)
+        example: 2000
+        type: integer
+    type: object
   controller.Customer:
     properties:
       _id:
@@ -61,6 +99,40 @@ definitions:
         type: string
       stok:
         example: 5
+        type: integer
+    type: object
+  controller.ReqCartItem:
+    properties:
+      gambar:
+        description: Gambar produk
+        example: https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg
+        type: string
+      harga:
+        description: Harga produk pada saat dimasukkan ke keranjang
+        example: 5000
+        type: integer
+      id_produk:
+        description: Referensi ke ID Produk
+        example: "1234567"
+        type: string
+      id_user:
+        example: "1234567"
+        type: string
+      is_selected:
+        description: Tambahkan flag ini
+        example: true
+        type: boolean
+      nama_produk:
+        description: nama untuk produknya
+        example: ikan bakar
+        type: string
+      quantity:
+        description: Jumlah produk dalam keranjang
+        example: 1
+        type: integer
+      sub_total:
+        description: Total harga (Harga * Quantity)
+        example: 2000
         type: integer
     type: object
   controller.ReqCustomer:
@@ -130,6 +202,48 @@ info:
   title: TES SWAGGER ULBI
   version: "1.0"
 paths:
+  /chartitem:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil semua data cartitem.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.CartItem'
+      summary: Get All Data cartitem.
+      tags:
+      - Chartitem
+  /chartitem/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Ambil per ID data cartitem.
+      parameters:
+      - description: Masukan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.CartItem'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get By ID Data Cartitem.
+      tags:
+      - Chartitem
   /customer:
     get:
       consumes:
@@ -195,6 +309,52 @@ paths:
       summary: Delete data customer.
       tags:
       - Customer
+  /deletechartitem/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Hapus data cartitem.
+      parameters:
+      - description: Masukan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Delete data cartitem.
+      tags:
+      - Chartitem
+  /deleteproduk/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Hapus data produk.
+      parameters:
+      - description: Masukan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Delete data produk.
+      tags:
+      - Produk
   /insert:
     post:
       consumes:
@@ -221,6 +381,32 @@ paths:
       summary: Insert data customer.
       tags:
       - Customer
+  /insertchartitem:
+    post:
+      consumes:
+      - application/json
+      description: Input data cartitem.
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ReqCartItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.CartItem'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Insert data cartitem.
+      tags:
+      - Chartitem
   /insertproduk:
     post:
       consumes:
@@ -320,6 +506,68 @@ paths:
       summary: Update data customer.
       tags:
       - Customer
+  /updatechartitem/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Ubah data cartitem.
+      parameters:
+      - description: Masukan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ReqCartItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.CartItem'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Update data cartitem.
+      tags:
+      - Chartitem
+  /updateproduk/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Ubah data produk.
+      parameters:
+      - description: Masukan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ReqProduk'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Produk'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Update data produk.
+      tags:
+      - Produk
 schemes:
 - https
 - http

@@ -448,8 +448,18 @@ func InsertDataProduk(c *fiber.Ctx) error {
 
 
 //update data produk 
-
-
+// UpdateDataProduk godoc
+// @Summary Update data produk.
+// @Description Ubah data produk.
+// @Tags Produk
+// @Accept json
+// @Produce json
+// @Param id path string true "Masukan ID"
+// @Param request body ReqProduk true "Payload Body [RAW]"
+// @Success 200 {object} Produk
+// @Failure 400
+// @Failure 500
+// @Router /updateproduk/{id} [put]
 func UpdateDataProduk(c *fiber.Ctx) error {
 	db := config.Ulbimongoconn
 
@@ -504,6 +514,17 @@ func UpdateDataProduk(c *fiber.Ctx) error {
 }
 
 //delete data produk
+// DeleteProduksByID godoc
+// @Summary Delete data produk.
+// @Description Hapus data produk.
+// @Tags Produk
+// @Accept json
+// @Produce json
+// @Param id path string true "Masukan ID"
+// @Success 200
+// @Failure 400
+// @Failure 500
+// @Router /deleteproduk/{id} [delete]
 func DeleteProduksByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -536,14 +557,34 @@ func DeleteProduksByID(c *fiber.Ctx) error {
 }
 
 // cartitem bagian keranjang 
-
 // get all cartitem 
+
+// GetCartItem godoc
+// @Summary Get All Data cartitem.
+// @Description Mengambil semua data cartitem.
+// @Tags Chartitem
+// @Accept json
+// @Produce json
+// @Success 200 {object} CartItem
+// @Router /chartitem [get]
 func GetCartItem(c *fiber.Ctx) error {
 	ps := cek.GetAllCartItems()
 	return c.JSON(ps)
 }
 
 // get cartitemfromID
+// GetCartItemID godoc
+// @Summary Get By ID Data Cartitem.
+// @Description Ambil per ID data cartitem.
+// @Tags Chartitem
+// @Accept json
+// @Produce json
+// @Param id path string true "Masukan ID"
+// @Success 200 {object} CartItem
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /chartitem/{id} [get]
 func GetCartItemID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -576,6 +617,17 @@ func GetCartItemID(c *fiber.Ctx) error {
 }
 
 // InsertDataCartItem (Keranjang)
+// InsertDataCartItem godoc
+// @Summary Insert data cartitem.
+// @Description Input data cartitem.
+// @Tags Chartitem
+// @Accept json
+// @Produce json
+// @Param request body ReqCartItem true "Payload Body [RAW]"
+// @Success 200 {object} CartItem
+// @Failure 400
+// @Failure 500
+// @Router /insertchartitem [post]
 func InsertDataCartItem(c *fiber.Ctx) error {
 	var input struct {
 		IDProduk  primitive.ObjectID `json:"id_produk"`
@@ -714,6 +766,18 @@ func CheckoutFromCart(c *fiber.Ctx) error {
 
 
 //update data keranjang
+// UpdateDataCartItem godoc
+// @Summary Update data cartitem.
+// @Description Ubah data cartitem.
+// @Tags Chartitem
+// @Accept json
+// @Produce json
+// @Param id path string true "Masukan ID"
+// @Param request body ReqCartItem true "Payload Body [RAW]"
+// @Success 200 {object} CartItem
+// @Failure 400
+// @Failure 500
+// @Router /updatechartitem/{id} [put]
 func UpdateDataCartItem(c *fiber.Ctx) error {
     // Parse ID dari parameter URL
     id := c.Params("id")
@@ -783,6 +847,17 @@ func UpdateDataCartItem(c *fiber.Ctx) error {
 }
 
 // hapus dari keranjang
+// DeleteCartItemByID godoc
+// @Summary Delete data cartitem.
+// @Description Hapus data cartitem.
+// @Tags Chartitem
+// @Accept json
+// @Produce json
+// @Param id path string true "Masukan ID"
+// @Success 200
+// @Failure 400
+// @Failure 500
+// @Router /deletechartitem/{id} [delete]
 func DeleteCartItemByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {

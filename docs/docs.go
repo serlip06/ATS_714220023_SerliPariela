@@ -19,6 +19,70 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/chartitem": {
+            "get": {
+                "description": "Mengambil semua data cartitem.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chartitem"
+                ],
+                "summary": "Get All Data cartitem.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.CartItem"
+                        }
+                    }
+                }
+            }
+        },
+        "/chartitem/{id}": {
+            "get": {
+                "description": "Ambil per ID data cartitem.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chartitem"
+                ],
+                "summary": "Get By ID Data Cartitem.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Masukan ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.CartItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/customer": {
             "get": {
                 "description": "Mengambil semua data customer.",
@@ -118,6 +182,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/deletechartitem/{id}": {
+            "delete": {
+                "description": "Hapus data cartitem.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chartitem"
+                ],
+                "summary": "Delete data cartitem.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Masukan ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/deleteproduk/{id}": {
+            "delete": {
+                "description": "Hapus data produk.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Produk"
+                ],
+                "summary": "Delete data produk.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Masukan ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/insert": {
             "post": {
                 "description": "Input data customer.",
@@ -147,6 +281,46 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/controller.Customer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/insertchartitem": {
+            "post": {
+                "description": "Input data cartitem.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chartitem"
+                ],
+                "summary": "Insert data cartitem.",
+                "parameters": [
+                    {
+                        "description": "Payload Body [RAW]",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.ReqCartItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.CartItem"
                         }
                     },
                     "400": {
@@ -308,9 +482,152 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/updatechartitem/{id}": {
+            "put": {
+                "description": "Ubah data cartitem.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chartitem"
+                ],
+                "summary": "Update data cartitem.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Masukan ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Payload Body [RAW]",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.ReqCartItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.CartItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/updateproduk/{id}": {
+            "put": {
+                "description": "Ubah data produk.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Produk"
+                ],
+                "summary": "Update data produk.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Masukan ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Payload Body [RAW]",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.ReqProduk"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Produk"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "controller.CartItem": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "description": "ID unik untuk item keranjang",
+                    "type": "string",
+                    "example": "1234567"
+                },
+                "gambar": {
+                    "description": "Gambar produk",
+                    "type": "string",
+                    "example": "https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg"
+                },
+                "harga": {
+                    "description": "Harga produk pada saat dimasukkan ke keranjang",
+                    "type": "integer",
+                    "example": 5000
+                },
+                "id_produk": {
+                    "description": "Referensi ke ID Produk",
+                    "type": "string",
+                    "example": "1234567"
+                },
+                "id_user": {
+                    "type": "string",
+                    "example": "1234567"
+                },
+                "is_selected": {
+                    "description": "Tambahkan flag ini",
+                    "type": "boolean",
+                    "example": true
+                },
+                "nama_produk": {
+                    "description": "nama untuk produknya",
+                    "type": "string",
+                    "example": "ikan bakar"
+                },
+                "quantity": {
+                    "description": "Jumlah produk dalam keranjang",
+                    "type": "integer",
+                    "example": 1
+                },
+                "sub_total": {
+                    "description": "Total harga (Harga * Quantity)",
+                    "type": "integer",
+                    "example": 2000
+                }
+            }
+        },
         "controller.Customer": {
             "type": "object",
             "properties": {
@@ -395,6 +712,50 @@ const docTemplate = `{
                 "stok": {
                     "type": "integer",
                     "example": 5
+                }
+            }
+        },
+        "controller.ReqCartItem": {
+            "type": "object",
+            "properties": {
+                "gambar": {
+                    "description": "Gambar produk",
+                    "type": "string",
+                    "example": "https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg"
+                },
+                "harga": {
+                    "description": "Harga produk pada saat dimasukkan ke keranjang",
+                    "type": "integer",
+                    "example": 5000
+                },
+                "id_produk": {
+                    "description": "Referensi ke ID Produk",
+                    "type": "string",
+                    "example": "1234567"
+                },
+                "id_user": {
+                    "type": "string",
+                    "example": "1234567"
+                },
+                "is_selected": {
+                    "description": "Tambahkan flag ini",
+                    "type": "boolean",
+                    "example": true
+                },
+                "nama_produk": {
+                    "description": "nama untuk produknya",
+                    "type": "string",
+                    "example": "ikan bakar"
+                },
+                "quantity": {
+                    "description": "Jumlah produk dalam keranjang",
+                    "type": "integer",
+                    "example": 1
+                },
+                "sub_total": {
+                    "description": "Total harga (Harga * Quantity)",
+                    "type": "integer",
+                    "example": 2000
                 }
             }
         },

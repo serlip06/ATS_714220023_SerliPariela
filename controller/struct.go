@@ -64,3 +64,27 @@ type ReqCustomer struct{
 	Gambar       string             `bson:"gambar,omitempty" json:"gambar,omitempty" example:"https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg"`
 	Stok         string             `bson:"stok,omitempty" json:"stok,omitempty" example:"10"`
 }
+
+type CartItem struct {
+	IDCartItem  primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty" example:"1234567"`             // ID unik untuk item keranjang
+	IDProduk    primitive.ObjectID `bson:"id_produk,omitempty" json:"id_produk,omitempty" example:"1234567"` // Referensi ke ID Produk
+	IDUser      primitive.ObjectID `bson:"id_user" json:"id_user" example:"1234567"`
+	Nama_Produk string             `bson:"nama_produk,omitempty" json:"nama_produk,omitempty" example:"ikan bakar"` //nama untuk produknya
+	Harga       int                `bson:"harga,omitempty" json:"harga,omitempty" example:"5000"`             // Harga produk pada saat dimasukkan ke keranjang
+	Quantity    int                `bson:"quantity,omitempty" json:"quantity,omitempty" example:"1"`       // Jumlah produk dalam keranjang
+	SubTotal    int                `bson:"sub_total,omitempty" json:"sub_total,omitempty" example:"2000"`     // Total harga (Harga * Quantity)
+	Gambar      string             `bson:"gambar,omitempty" json:"gambar,omitempty"  example:"https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg" `           // Gambar produk
+	IsSelected  bool               `bson:"is_selected,omitempty" json:"is_selected,omitempty"  example:"true"` // Tambahkan flag ini
+	
+}
+type ReqCartItem struct {
+	IDProduk    primitive.ObjectID `bson:"id_produk,omitempty" json:"id_produk,omitempty" example:"1234567"` // Referensi ke ID Produk
+	IDUser      primitive.ObjectID `bson:"id_user" json:"id_user" example:"1234567"`
+	Nama_Produk string             `bson:"nama_produk,omitempty" json:"nama_produk,omitempty" example:"ikan bakar"` //nama untuk produknya
+	Harga       int                `bson:"harga,omitempty" json:"harga,omitempty" example:"5000"`             // Harga produk pada saat dimasukkan ke keranjang
+	Quantity    int                `bson:"quantity,omitempty" json:"quantity,omitempty" example:"1"`       // Jumlah produk dalam keranjang
+	SubTotal    int                `bson:"sub_total,omitempty" json:"sub_total,omitempty" example:"2000"`     // Total harga (Harga * Quantity)
+	Gambar      string             `bson:"gambar,omitempty" json:"gambar,omitempty"  example:"https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg" `           // Gambar produk
+	IsSelected  bool               `bson:"is_selected,omitempty" json:"is_selected,omitempty"  example:"true"` // Tambahkan flag ini
+	
+}
