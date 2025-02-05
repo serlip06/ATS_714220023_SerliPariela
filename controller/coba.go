@@ -354,7 +354,7 @@ func GetAllProduks(c *fiber.Ctx) error {
 	})
 }
 
-
+// fitur untuk memanggil semua data produk berdasarkan kategorinya 
 // fitur tambahan kalo mau endpointnya nambahin produk/makanan atau produk/minuman 
 func GetAllProduksByKategori(c *fiber.Ctx, kategori string) error {
     // Pastikan kategori valid
