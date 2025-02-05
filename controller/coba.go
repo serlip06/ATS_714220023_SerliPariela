@@ -27,6 +27,15 @@ func Homepage(c *fiber.Ctx) error {
 
 //produk 
 //get produk untuk all 
+
+// GetPresensi godoc
+// @Summary Get All Data Produk.
+// @Description Mengambil semua data Produk.
+// @Tags Produk
+// @Accept json
+// @Produce json
+// @Success 200 {object} Produk
+// @Router /produk [get]
 func GetProduks(c *fiber.Ctx) error {
 	// Ambil query "kategori" dari URL, default kosong jika tidak diberikan
 	kategori := c.Query("kategori", "")
@@ -273,6 +282,19 @@ func DeleteCustomerByID(c *fiber.Ctx) error {
 
 //Produk
 //function untuk mengambil data produk by ID
+
+// GetProduksID godoc
+// @Summary Get By ID Data Produk.
+// @Description Ambil per ID data produk.
+// @Tags Produk
+// @Accept json
+// @Produce json
+// @Param id path string true "Masukan ID"
+// @Success 200 {object} Produk
+// @Failure 400
+// @Failure 404
+// @Failure 500
+// @Router /produk/{id} [get]
 func GetProduksID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -366,7 +388,18 @@ func GetAllProduksByKategori(c *fiber.Ctx, kategori string) error {
 }
 
 //insert data produk
-//ini diperbaharui karena ada kategori 
+
+// InsertDataProduk godoc
+// @Summary Insert data produk.
+// @Description Input data produk.
+// @Tags Produk
+// @Accept json
+// @Produce json
+// @Param request body ReqProduk true "Payload Body [RAW]"
+// @Success 200 {object} Produk
+// @Failure 400
+// @Failure 500
+// @Router /insertproduk [post]
 func InsertDataProduk(c *fiber.Ctx) error {
 	var produk inimodel.Produk
 
@@ -415,7 +448,8 @@ func InsertDataProduk(c *fiber.Ctx) error {
 
 
 //update data produk 
-// ini juga di perbaharui 
+
+
 func UpdateDataProduk(c *fiber.Ctx) error {
 	db := config.Ulbimongoconn
 

@@ -37,6 +37,32 @@ definitions:
         example: "10"
         type: string
     type: object
+  controller.Produk:
+    properties:
+      _id:
+        example: "1234567"
+        type: string
+      created_at:
+        type: string
+      deskripsi:
+        example: minuman teh manis yang menyegarkan
+        type: string
+      gambar:
+        example: https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg
+        type: string
+      harga:
+        example: 10000
+        type: integer
+      kategori:
+        example: makanan
+        type: string
+      nama_produk:
+        example: nama makanan/minuman
+        type: string
+      stok:
+        example: 5
+        type: integer
+    type: object
   controller.ReqCustomer:
     properties:
       alamat:
@@ -70,6 +96,29 @@ definitions:
       stok:
         example: "10"
         type: string
+    type: object
+  controller.ReqProduk:
+    properties:
+      created_at:
+        type: string
+      deskripsi:
+        example: minuman teh manis yang menyegarkan
+        type: string
+      gambar:
+        example: https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg
+        type: string
+      harga:
+        example: 10000
+        type: integer
+      kategori:
+        example: makanan
+        type: string
+      nama_produk:
+        example: test swagger
+        type: string
+      stok:
+        example: 5
+        type: integer
     type: object
 host: ats-714220023-serlipariela-38bba14820aa.herokuapp.com
 info:
@@ -172,6 +221,74 @@ paths:
       summary: Insert data customer.
       tags:
       - Customer
+  /insertproduk:
+    post:
+      consumes:
+      - application/json
+      description: Input data produk.
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ReqProduk'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Produk'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Insert data produk.
+      tags:
+      - Produk
+  /produk:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil semua data Produk.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Produk'
+      summary: Get All Data Produk.
+      tags:
+      - Produk
+  /produk/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Ambil per ID data produk.
+      parameters:
+      - description: Masukan ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Produk'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get By ID Data Produk.
+      tags:
+      - Produk
   /update/{id}:
     put:
       consumes:

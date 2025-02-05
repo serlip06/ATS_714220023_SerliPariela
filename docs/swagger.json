@@ -156,6 +156,110 @@
                 }
             }
         },
+        "/insertproduk": {
+            "post": {
+                "description": "Input data produk.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Produk"
+                ],
+                "summary": "Insert data produk.",
+                "parameters": [
+                    {
+                        "description": "Payload Body [RAW]",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.ReqProduk"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Produk"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/produk": {
+            "get": {
+                "description": "Mengambil semua data Produk.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Produk"
+                ],
+                "summary": "Get All Data Produk.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Produk"
+                        }
+                    }
+                }
+            }
+        },
+        "/produk/{id}": {
+            "get": {
+                "description": "Ambil per ID data produk.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Produk"
+                ],
+                "summary": "Get By ID Data Produk.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Masukan ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Produk"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
         "/update/{id}": {
             "put": {
                 "description": "Ubah data customer.",
@@ -256,6 +360,42 @@
                 }
             }
         },
+        "controller.Produk": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string",
+                    "example": "1234567"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deskripsi": {
+                    "type": "string",
+                    "example": "minuman teh manis yang menyegarkan"
+                },
+                "gambar": {
+                    "type": "string",
+                    "example": "https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg"
+                },
+                "harga": {
+                    "type": "integer",
+                    "example": 10000
+                },
+                "kategori": {
+                    "type": "string",
+                    "example": "makanan"
+                },
+                "nama_produk": {
+                    "type": "string",
+                    "example": "nama makanan/minuman"
+                },
+                "stok": {
+                    "type": "integer",
+                    "example": 5
+                }
+            }
+        },
         "controller.ReqCustomer": {
             "type": "object",
             "properties": {
@@ -300,6 +440,38 @@
                 "stok": {
                     "type": "string",
                     "example": "10"
+                }
+            }
+        },
+        "controller.ReqProduk": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deskripsi": {
+                    "type": "string",
+                    "example": "minuman teh manis yang menyegarkan"
+                },
+                "gambar": {
+                    "type": "string",
+                    "example": "https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg"
+                },
+                "harga": {
+                    "type": "integer",
+                    "example": 10000
+                },
+                "kategori": {
+                    "type": "string",
+                    "example": "makanan"
+                },
+                "nama_produk": {
+                    "type": "string",
+                    "example": "test swagger"
+                },
+                "stok": {
+                    "type": "integer",
+                    "example": 5
                 }
             }
         }

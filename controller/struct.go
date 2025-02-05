@@ -2,6 +2,7 @@ package controller
 
 import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
 )
 
 type Pelanggan struct {
@@ -13,11 +14,24 @@ type Pelanggan struct {
 }
 
 type Produk struct {
-	ID     primitive.ObjectID      `bson:"_id,omitempty" json:"_id,omitempty"`
-	Nama_Produk  string   `bson:"nama_produk,omitempty" json:"nama_produk,omitempty"`
-	Deskripsi string   `bson:"deskripsi,omitempty" json:"deskripsi,omitempty"`
-	Harga        int      `bson:"harga,omitempty" json:"harga,omitempty"`
-	
+	IDProduk    primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty" example:"1234567"`
+	Nama_Produk string             `bson:"nama_produk,omitempty" json:"nama_produk,omitempty"  example:"nama makanan/minuman"`
+	Deskripsi   string             `bson:"deskripsi,omitempty" json:"deskripsi,omitempty" example:"minuman teh manis yang menyegarkan"`
+	Harga       int                `bson:"harga,omitempty" json:"harga,omitempty" example:"10000"`
+	Gambar      string             `bson:"gambar,omitempty" json:"gambar,omitempty" example:"https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg" `
+	Stok        int                `bson:"stok,omitempty" json:"stok,omitempty" example:"5" `
+	Kategori    string             `bson:"kategori,omitempty" json:"kategori,omitempty"  example:"makanan"`
+	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
+}
+
+type ReqProduk struct {
+	Nama_Produk string             `bson:"nama_produk,omitempty" json:"nama_produk,omitempty"  example:"test swagger"`
+	Deskripsi   string             `bson:"deskripsi,omitempty" json:"deskripsi,omitempty" example:"minuman teh manis yang menyegarkan"`
+	Harga       int                `bson:"harga,omitempty" json:"harga,omitempty" example:"10000"`
+	Gambar      string             `bson:"gambar,omitempty" json:"gambar,omitempty" example:"https://i.pinimg.com/564x/94/82/ab/9482ab2e248d249e7daa7fd6924c8d3b.jpg" `
+	Stok        int                `bson:"stok,omitempty" json:"stok,omitempty" example:"5" `
+	Kategori    string             `bson:"kategori,omitempty" json:"kategori,omitempty"  example:"makanan"`
+	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
 }
 
 type Transaksi struct {
