@@ -12,7 +12,7 @@ import (
 	cek "github.com/serlip06/pointsalesofkantin/module"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/crypto/bcrypt"
+	//"golang.org/x/crypto/bcrypt"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
 	
@@ -20,7 +20,7 @@ import (
 
 var db = cek.MongoConnectdb("kantin")
 
-// function untuk registrasi user 
+
 func RegisterHandler(c *fiber.Ctx) error {
 	if c.Method() != "POST" {
 		return c.Status(fiber.StatusMethodNotAllowed).SendString("Invalid request method")
@@ -31,12 +31,8 @@ func RegisterHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid input")
 	}
 
-	// Hash password sebelum disimpan
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(registration.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Failed to hash password")
-	}
-	registration.Password = string(hashedPassword)
+	// Tidak perlu menetapkan password ke dirinya sendiri
+	//registration.Password = registration.Password
 	registration.SubmittedAt = time.Now()
 
 	// Simpan data ke pending users
@@ -65,7 +61,8 @@ func LoginHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).SendString("Invalid username or password")
 	}
 
-	if !verifyPassword(user.Password, loginData.Password) {
+	// Verifikasi password secara langsung
+	if user.Password != loginData.Password {
 		return c.Status(fiber.StatusUnauthorized).SendString("Invalid username or password")
 	}
 
@@ -74,13 +71,9 @@ func LoginHandler(c *fiber.Ctx) error {
 		Message: "Login successful",
 	})
 }
-// verifikasi paswoord 
-func verifyPassword(storedPassword string, inputPassword string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(inputPassword))
-	return err == nil
-}
 
 // function untuk acc user baru di admin
+// ApproveRegistrationHandler
 func ApproveRegistrationHandler(c *fiber.Ctx) error {
     id := c.Params("id") // Ambil ID dari URL
 
@@ -99,14 +92,8 @@ func ApproveRegistrationHandler(c *fiber.Ctx) error {
         })
     }
 
-    // Hash password jika belum di-hash sebelumnya
-    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-    if err != nil {
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "error": "Failed to hash password",
-        })
-    }
-    user.Password = string(hashedPassword)
+    // Tidak perlu menetapkan password ke dirinya sendiri
+  //  user.Password = user.Password
 
     // Simpan user ke koleksi `users`
     collection := db.Collection("users")
