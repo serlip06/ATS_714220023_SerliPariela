@@ -569,6 +569,7 @@ func UploadImageToGitHub(c *fiber.Ctx, file *multipart.FileHeader, productName s
 }
 
 // Fungsi untuk menghitung total harga
+
 func calculateTotalHarga(idCartItems []primitive.ObjectID) (int, error) {
 	collection := config.Ulbimongoconn.Collection("cart_items")
 	total := 0
