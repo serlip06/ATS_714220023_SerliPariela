@@ -93,7 +93,7 @@ func ApproveRegistrationHandler(c *fiber.Ctx) error {
     }
 
     // Tidak perlu menetapkan password ke dirinya sendiri
-  //  user.Password = user.Password
+  	// user.Password = user.Password
 
     // Simpan user ke koleksi `users`
     collection := db.Collection("users")
