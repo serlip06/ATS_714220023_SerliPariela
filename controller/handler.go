@@ -121,6 +121,7 @@ func GetAllUsers(c *fiber.Ctx) error {
 	}
 	return c.JSON(users)
 }
+
 // get user byid
 // func GetUserByID(userID string, db *mongo.Database) (*inimodel.User, error) {
 // 	collection := db.Collection("users")
