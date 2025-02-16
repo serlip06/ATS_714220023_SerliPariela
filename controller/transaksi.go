@@ -3,23 +3,29 @@ package controller
 import (
 	//"errors"
 	"bytes"
+	"strings"
+
 	//"fmt"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+
 	//"io/ioutil"
 	"io"
 	"mime/multipart"
+
 	//"os"
 	"time"
 	//"github.com/aiteung/musik"
 	"github.com/gofiber/fiber/v2"
 	"github.com/serlip06/ATS_714220023_SerliPariela/config"
+	"github.com/serlip06/ATS_714220023_SerliPariela/helper/ghupload"
 	inimodel "github.com/serlip06/pointsalesofkantin/model"
 	cek "github.com/serlip06/pointsalesofkantin/module"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	//"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	//"strings"
@@ -88,20 +94,21 @@ import (
 // 		}
 // 	}
 
-// 	// Hitung total harga berdasarkan CartItem
-// 	totalHarga, err := calculateTotalHarga(input.IDCartItem)
-// 	if err != nil {
-// 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-// 			"status":  http.StatusInternalServerError,
-// 			"message": "Failed to calculate total price",
-// 			"error":   err.Error(),
-// 		})
-// 	}
+//	// Hitung total harga berdasarkan CartItem
+//	totalHarga, err := calculateTotalHarga(input.IDCartItem)
+//	if err != nil {
+//		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+//			"status":  http.StatusInternalServerError,
+//			"message": "Failed to calculate total price",
+//			"error":   err.Error(),
+//		})
+//	}
+//
 // Fungsi untuk menambahkan transaksi baru
 func InsertTransaksi(c *fiber.Ctx) error {
 	var input struct {
-		IDUser           primitive.ObjectID   `json:"id_user"`           // Menggunakan ObjectID langsung
-		IDCartItem       []primitive.ObjectID `json:"id_cartitem"`       // CartItem sebagai array of ObjectID
+		IDUser           primitive.ObjectID   `json:"id_user"`     // Menggunakan ObjectID langsung
+		IDCartItem       []primitive.ObjectID `json:"id_cartitem"` // CartItem sebagai array of ObjectID
 		MetodePembayaran string               `json:"metode_pembayaran"`
 		BuktiPembayaran  string               `json:"bukti_pembayaran"`
 		Status           string               `json:"status"`
@@ -171,6 +178,7 @@ func InsertTransaksi(c *fiber.Ctx) error {
 	}
 
 	// Proses upload gambar bukti pembayaran
+	var ImageBuktiPembayaran string
 	file, err := c.FormFile("bukti_pembayaran") // Mengambil gambar dari form
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
@@ -179,14 +187,73 @@ func InsertTransaksi(c *fiber.Ctx) error {
 		})
 	}
 
-	// ✅ Pastikan menambahkan c sebagai parameter pertama
-	imageURL, err := UploadImageToGitHub(c, file, "bukti_pembayaran")
+	if file.Size > 5<<20 {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Image file is too large. Max 5MB allowed",
+		})
+	}
+
+	allowedExtensions := []string{".jpg", ".jpeg", ".png"}
+	ext := strings.ToLower(file.Filename[strings.LastIndex(file.Filename, "."):])
+	isValid := false
+	for _, allowedExt := range allowedExtensions {
+		if ext == allowedExt {
+			isValid = true
+			break
+		}
+	}
+	if !isValid {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"status":  http.StatusBadRequest,
+			"message": "Invalid file type. Only JPG, JPEG, and PNG are allowed",
+		})
+	}
+
+	fileContent, err := file.Open()
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"status":  http.StatusInternalServerError,
-			"message": "Failed to upload payment proof: " + err.Error(),
+			"message": "Failed to open image file: " + err.Error(),
 		})
 	}
+	defer fileContent.Close()
+
+	fileBytes, err := io.ReadAll(fileContent)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Failed to read image file: " + err.Error(),
+		})
+	}
+
+	hashedFileName := ghupload.CalculateHash(fileBytes) + file.Filename[strings.LastIndex(file.Filename, "."):]
+	GitHubAccessToken := config.GHAccessToken
+	GitHubAuthorName := "serli"
+	GitHubAuthorEmail := "Serlipariela0622@gmail.com"
+	githubOrg := "serlip06"
+	githubRepo := "Gambar"
+	pathFile := hashedFileName
+	replace := true
+
+	content, _, err := ghupload.GithubUpload(GitHubAccessToken, GitHubAuthorName, GitHubAuthorEmail, fileBytes, githubOrg, githubRepo, pathFile, replace)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"status":  http.StatusInternalServerError,
+			"message": "Failed to upload image to GitHub: " + err.Error(),
+		})
+	}
+
+	ImageBuktiPembayaran = *content.Content.HTMLURL
+
+	// ✅ Pastikan menambahkan c sebagai parameter pertama
+	// imageURL, err := UploadImageToGitHub(c, file, "bukti_pembayaran")
+	// if err != nil {
+	// 	return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+	// 		"status":  http.StatusInternalServerError,
+	// 		"message": "Failed to upload payment proof: " + err.Error(),
+	// 	})
+	// }
 
 	// Buat objek transaksi dengan URL gambar
 	transaksi := inimodel.Transaksi{
@@ -196,7 +263,7 @@ func InsertTransaksi(c *fiber.Ctx) error {
 		TotalHarga:       totalHarga,
 		MetodePembayaran: input.MetodePembayaran,
 		CreatedAt:        time.Now(),
-		BuktiPembayaran:  imageURL, // Menyimpan URL gambar bukti pembayaran
+		BuktiPembayaran:  ImageBuktiPembayaran, // Menyimpan URL gambar bukti pembayaran
 		Status:           input.Status,
 		Alamat:           input.Alamat,
 	}
@@ -487,14 +554,15 @@ func InsertTransaksi(c *fiber.Ctx) error {
 func UploadImageToGitHub(c *fiber.Ctx, file *multipart.FileHeader, productName string) (string, error) {
 	// 🔹 Ambil token dari Header Authorization
 	githubToken := c.Get("Authorization")
+	fmt.Println("[INFO] Mengambil token dari header Authorization")
 
 	// ✅ Cek apakah token kosong
 	if githubToken == "" {
+		fmt.Println("[ERROR] GitHub token is missing")
 		return "", fmt.Errorf("GitHub token is missing. Please provide a valid token")
 	}
 
-	// 🔹 Debugging untuk memastikan token terbaca
-	fmt.Println("GitHub Token:", githubToken)
+	fmt.Println("[INFO] GitHub Token ditemukan")
 
 	// 🔹 Sesuaikan username dan nama repository GitHub
 	repoOwner := "serlip06"
@@ -505,23 +573,30 @@ func UploadImageToGitHub(c *fiber.Ctx, file *multipart.FileHeader, productName s
 	filePath := fmt.Sprintf("%s/%d_%s.jpg", folderName, time.Now().Unix(), productName)
 
 	// ✅ Debugging path
-	fmt.Println("Uploading file to:", filePath)
+	fmt.Println("[INFO] File akan diupload ke:", filePath)
 
 	// 🔹 Buka file untuk dibaca
 	fileContent, err := file.Open()
 	if err != nil {
+		fmt.Println("[ERROR] Gagal membuka file gambar:", err)
 		return "", fmt.Errorf("failed to open image file: %w", err)
 	}
 	defer fileContent.Close()
 
+	fmt.Println("[INFO] Berhasil membuka file gambar")
+
 	// 🔹 Baca isi file
 	imageData, err := io.ReadAll(fileContent)
 	if err != nil {
+		fmt.Println("[ERROR] Gagal membaca file gambar:", err)
 		return "", fmt.Errorf("failed to read image file: %w", err)
 	}
 
+	fmt.Println("[INFO] Berhasil membaca file gambar")
+
 	// 🔹 Encode file ke base64
 	encodedImage := base64.StdEncoding.EncodeToString(imageData)
+	fmt.Println("[INFO] File gambar berhasil di-encode ke base64")
 
 	// 🔹 Siapkan payload untuk GitHub API
 	payload := map[string]string{
@@ -530,9 +605,12 @@ func UploadImageToGitHub(c *fiber.Ctx, file *multipart.FileHeader, productName s
 	}
 
 	payloadBytes, _ := json.Marshal(payload)
+	fmt.Println("[INFO] Payload berhasil dibuat")
 
 	// 🔹 Buat request ke GitHub API
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/contents/%s", repoOwner, repoName, filePath)
+	fmt.Println("[INFO] Mengirim request ke:", url)
+
 	req, _ := http.NewRequest("PUT", url, bytes.NewReader(payloadBytes))
 
 	// ✅ Perbaikan: Gunakan format Authorization yang benar
@@ -542,29 +620,37 @@ func UploadImageToGitHub(c *fiber.Ctx, file *multipart.FileHeader, productName s
 	// 🔹 Kirim request ke GitHub API
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		fmt.Println("[ERROR] Gagal mengupload gambar ke GitHub:", err)
 		return "", fmt.Errorf("failed to upload image to GitHub: %w", err)
 	}
 	defer resp.Body.Close()
 
+	fmt.Println("[INFO] Request ke GitHub API berhasil dikirim")
+
 	// 🔹 Jika terjadi error, tampilkan respon API
 	if resp.StatusCode != http.StatusCreated {
 		body, _ := io.ReadAll(resp.Body)
-		fmt.Println("GitHub API Response:", string(body)) // ✅ Debugging untuk melihat respon API GitHub
+		fmt.Println("[ERROR] GitHub API Response:", string(body))
 		return "", fmt.Errorf("GitHub API error: %s", body)
 	}
+
+	fmt.Println("[INFO] Gambar berhasil diupload ke GitHub")
 
 	// 🔹 Parse response JSON dari GitHub API
 	var result map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		fmt.Println("[ERROR] Gagal memproses response dari GitHub API:", err)
 		return "", fmt.Errorf("failed to parse GitHub API response: %w", err)
 	}
 
 	// 🔹 Ambil download URL gambar yang sudah diupload
 	content, ok := result["content"].(map[string]interface{})
 	if !ok || content["download_url"] == nil {
+		fmt.Println("[ERROR] Response GitHub API tidak memiliki download_url")
 		return "", fmt.Errorf("GitHub API response missing download_url")
 	}
 
+	fmt.Println("[INFO] Gambar berhasil diupload, URL:", content["download_url"].(string))
 	return content["download_url"].(string), nil
 }
 
